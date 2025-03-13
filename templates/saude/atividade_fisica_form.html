@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Atividade Física - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">{% if atividade %}Editar{% else %}Registrar{% endif %} Atividade Física</h1>
+        <p class="lead">Mantenha o registro de suas atividades físicas para acompanhar seu progresso.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Formulário de Atividade</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Tipo de Atividade -->
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo de Atividade</label>
+                        <select class="form-select" id="tipo" name="tipo" required>
+                            <option value="" selected disabled>Selecione o tipo de atividade</option>
+                            <option value="musculacao" {% if atividade and atividade.tipo == 'musculacao' %}selected{% endif %}>Musculação</option>
+                            <option value="natacao" {% if atividade and atividade.tipo == 'natacao' %}selected{% endif %}>Natação</option>
+                            <option value="caminhada" {% if atividade and atividade.tipo == 'caminhada' %}selected{% endif %}>Caminhada</option>
+                            <option value="artes_marciais" {% if atividade and atividade.tipo == 'artes_marciais' %}selected{% endif %}>Artes Marciais</option>
+                            <option value="outro" {% if atividade and atividade.tipo == 'outro' %}selected{% endif %}>Outro</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Por favor, selecione um tipo de atividade.
+                        </div>
+                    </div>
+                    
+                    <!-- Data da Atividade -->
+                    <div class="mb-3">
+                        <label for="data" class="form-label">Data</label>
+                        <input type="date" class="form-control" id="data" name="data" value="{% if atividade %}{{ atividade.data|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a data da atividade.
+                        </div>
+                    </div>
+                    
+                    <!-- Duração -->
+                    <div class="mb-3">
+                        <label for="duracao" class="form-label">Duração (minutos)</label>
+                        <input type="number" class="form-control" id="duracao" name="duracao" min="1" value="{% if atividade %}{{ atividade.duracao }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a duração da atividade em minutos.
+                        </div>
+                    </div>
+                    
+                    <!-- Calorias Gastas -->
+                    <div class="mb-3">
+                        <label for="calorias_gastas" class="form-label">Calorias Gastas (opcional)</label>
+                        <input type="number" class="form-control" id="calorias_gastas" name="calorias_gastas" min="0" value="{% if atividade and atividade.calorias_gastas %}{{ atividade.calorias_gastas }}{% endif %}">
+                    </div>
+                    
+                    <!-- Descrição -->
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (opcional)</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3">{% if atividade %}{{ atividade.descricao }}{% endif %}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'saude:atividade_fisica_list' %}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-info-circle text-primary me-2"></i> Registre suas atividades regularmente para acompanhar seu progresso.</li>
+                    <li><i class="fas fa-info-circle text-primary me-2"></i> A duração deve ser informada em minutos.</li>
+                    <li><i class="fas fa-info-circle text-primary me-2"></i> As calorias gastas são opcionais, mas ajudam a ter uma visão mais completa.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação do formulário
+(function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}

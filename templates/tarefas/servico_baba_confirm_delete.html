@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Exclusão - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Confirmar Exclusão</h1>
+        <p class="lead">Você tem certeza que deseja excluir este serviço de babá?</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Atenção</h5>
+            </div>
+            <div class="card-body">
+                <p>Você está prestes a excluir o seguinte serviço de babá:</p>
+                <p class="fw-bold fs-5">{{ object.get_tipo_servico_display }}</p>
+                <p>
+                    <span class="badge bg-primary">{{ object.data|date:"d/m/Y" }}</span>
+                    <span class="ms-2">
+                        <i class="far fa-clock"></i> {{ object.horario_inicio|time:"H:i" }} - {{ object.horario_fim|time:"H:i" }}
+                    </span>
+                </p>
+                <p><strong>Local:</strong> {{ object.local }}</p>
+                {% if object.observacoes %}
+                <p><strong>Observações:</strong> {{ object.observacoes }}</p>
+                {% endif %}
+                {% if object.contato %}
+                <p><strong>Contato:</strong> {{ object.contato.nome }} ({{ object.contato.telefone }})</p>
+                {% endif %}
+                <p class="text-danger">Esta ação não pode ser desfeita.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'tarefas:servico_baba_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Confirmar Exclusão
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

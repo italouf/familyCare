@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Consumo de Água - FamilyCare{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if the page was updated (redirected from form submission)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('updated') === 'true') {
+            // Refresh the progress bar and daily record
+            updateWaterConsumption();
+        }
+        
+        // Animar a barra de progresso
+        const waterProgress = document.querySelector('.water-progress');
+        const value = waterProgress.getAttribute('aria-valuenow');
+        waterProgress.style.width = value + '%';
+    });
+    
+    function updateWaterConsumption() {
+        // Fetch the latest water consumption data
+        fetch('{% url "saude:consumo_agua_list" %}')
+            .then(response => response.text())
+            .then(html => {
+                // Create a temporary element to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Update the progress bar
+                const newProgressBar = tempDiv.querySelector('.progress');
+                const currentProgressBar = document.querySelector('.progress');
+                if (newProgressBar && currentProgressBar) {
+                    currentProgressBar.innerHTML = newProgressBar.innerHTML;
+                }
+                
+                // Update the progress percentage and text
+                const newPercentage = tempDiv.querySelector('.display-4');
+                const currentPercentage = document.querySelector('.display-4');
+                if (newPercentage && currentPercentage) {
+                    currentPercentage.textContent = newPercentage.textContent;
+                }
+                
+                // Update the consumption text
+                const newConsumptionText = tempDiv.querySelector('.display-4').nextElementSibling;
+                const currentConsumptionText = document.querySelector('.display-4').nextElementSibling;
+                if (newConsumptionText && currentConsumptionText) {
+                    currentConsumptionText.textContent = newConsumptionText.textContent;
+                }
+                
+                // Update the daily record
+                const newDailyRecord = tempDiv.querySelector('.card-body .list-group');
+                const currentDailyRecord = document.querySelector('.card-body .list-group');
+                if (newDailyRecord && currentDailyRecord) {
+                    currentDailyRecord.innerHTML = newDailyRecord.innerHTML;
+                } else if (newDailyRecord) {
+                    // If there was no record before, replace the entire content
+                    const dailyRecordContainer = document.querySelector('.col-md-6:nth-child(2) .card-body');
+                    if (dailyRecordContainer) {
+                        dailyRecordContainer.innerHTML = tempDiv.querySelector('.col-md-6:nth-child(2) .card-body').innerHTML;
+                    }
+                }
+            });
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Consumo de Água</h1>
+        <p class="lead">Acompanhe seu consumo diário de água e mantenha-se hidratado.</p>
+        <a href="{% url 'saude:consumo_agua_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Registrar Novo Consumo
+        </a>
+        <a href="{% url 'saude:meta_agua_detail' %}" class="btn btn-outline-primary ms-2">
+            <i class="fas fa-sliders-h"></i> Configurar Meta Diária
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Progresso de Hoje</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <h1 class="display-4 text-primary">{{ porcentagem }}%</h1>
+                    <p>{{ total_hoje }}ml de {{ meta_diaria }}ml</p>
+                </div>
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar bg-info water-progress" role="progressbar" 
+                         style="width: {{ porcentagem }}%" aria-valuenow="{{ porcentagem }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        {{ porcentagem }}%
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'saude:consumo_agua_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Adicionar Consumo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Registro Diário</h5>
+            </div>
+            <div class="card-body">
+                {% if consumos_hoje %}
+                <div class="list-group list-group-flush">
+                    {% for registro in consumos_hoje %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ registro.quantidade_ml }}ml</h6>
+                                <small class="text-muted">{{ registro.horario|time:"H:i" }}</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'saude:consumo_agua_update' registro.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'saude:consumo_agua_delete' registro.id %}" class="btn btn-sm btn-outline-danger ms-1">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">Nenhum registro hoje</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Histórico de Consumo</h5>
+            </div>
+            <div class="card-body">
+                {% if consumos %}
+                <div class="list-group list-group-flush">
+                    {% for registro in consumos %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ registro.quantidade_ml }}ml</h6>
+                                <small class="text-muted">{{ registro.data|date:"d/m/Y" }} {{ registro.horario|time:"H:i" }}</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'saude:consumo_agua_update' registro.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'saude:consumo_agua_delete' registro.id %}" class="btn btn-sm btn-outline-danger ms-1">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">Nenhum registro encontrado</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

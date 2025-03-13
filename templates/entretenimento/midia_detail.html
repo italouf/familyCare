@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ midia.titulo }} - Detalhes{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Informações da mídia -->
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'entretenimento:midia_list' %}">Entretenimento</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'entretenimento:midia_tipo' tipo=midia.tipo %}">{{ midia.get_tipo_display }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ midia.titulo }}</li>
+                </ol>
+            </nav>
+            
+            <div class="card mb-4">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        {% if midia.imagem %}
+                            <img src="{{ midia.imagem.url }}" class="img-fluid rounded-start" alt="{{ midia.titulo }}" style="height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light text-center py-5 h-100">
+                                <i class="bi bi-film fs-1"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h1 class="card-title">{{ midia.titulo }}</h1>
+                            <div class="mb-3">
+                                <span class="badge bg-primary">{{ midia.get_tipo_display }}</span>
+                                <span class="badge bg-secondary">{{ midia.get_categoria_display }}</span>
+                                {% if midia.classificacao %}
+                                    <span class="badge bg-warning text-dark">{{ midia.classificacao }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="card-text">{{ midia.descricao }}</p>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p><strong>Ano de lançamento:</strong> {{ midia.ano_lancamento }}</p>
+                                    {% if midia.duracao_minutos %}
+                                        <p><strong>Duração:</strong> {{ midia.duracao_minutos }} minutos</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if midia.artista_autor %}
+                                        <p><strong>Artista/Autor:</strong> {{ midia.artista_autor }}</p>
+                                    {% endif %}
+                                    <p><strong>Adicionado em:</strong> {{ midia.data_adicao|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                            
+                            {% if user.is_authenticated %}
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'entretenimento:reproduzir_midia' midia_id=midia.pk %}" class="btn btn-success">
+                                        <i class="bi bi-play-fill"></i> Reproduzir
+                                    </a>
+                                    
+                                    <!-- Dropdown para adicionar à playlist -->
+                                    {% if playlists %}
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownPlaylist" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-plus-circle"></i> Adicionar à playlist
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownPlaylist">
+                                                {% for playlist in playlists %}
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'entretenimento:adicionar_midia_playlist' pk=playlist.pk midia_id=midia.pk %}?next={{ request.path }}">
+                                                            {{ playlist.nome }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{% url 'entretenimento:playlist_create' %}">
+                                                        <i class="bi bi-plus-circle"></i> Criar nova playlist
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    {% else %}
+                                        <a href="{% url 'entretenimento:playlist_create' %}" class="btn btn-outline-primary">
+                                            <i class="bi bi-plus-circle"></i> Criar playlist
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mídias relacionadas -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Mídias relacionadas</h5>
+                </div>
+                <div class="card-body">
+                    {% if midias_relacionadas %}
+                        <div class="list-group">
+                            {% for midia_rel in midias_relacionadas %}
+                                <a href="{% url 'entretenimento:midia_detail' pk=midia_rel.pk %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ midia_rel.titulo }}</h6>
+                                        <small>{{ midia_rel.ano_lancamento }}</small>
+                                    </div>
+                                    <small class="text-muted">{{ midia_rel.get_categoria_display }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Nenhuma mídia relacionada encontrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

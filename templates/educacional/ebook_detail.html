@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ebook.titulo }} - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'educacional:ebook_list' %}">E-books Educacionais</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ ebook.titulo }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            {% if ebook.capa %}
+            <img src="{{ ebook.capa.url }}" class="card-img-top" alt="{{ ebook.titulo }}">
+            {% else %}
+            <div class="card-img-top bg-light text-center py-5">
+                <i class="fas fa-book fa-5x text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if ebook.arquivo %}
+                    <a href="{% url 'educacional:ebook_download' ebook.pk %}" class="btn btn-primary">
+                        <i class="fas fa-download me-2"></i> Baixar E-book
+                    </a>
+                    {% elif ebook.url %}
+                    <a href="{{ ebook.url }}" target="_blank" class="btn btn-primary">
+                        <i class="fas fa-external-link-alt me-2"></i> Acessar E-book
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>
+                        <i class="fas fa-exclamation-circle me-2"></i> Indisponível
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h2 mb-2">{{ ebook.titulo }}</h1>
+                <h6 class="card-subtitle mb-3 text-muted">{{ ebook.autor }}</h6>
+                
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ ebook.categoria }}</span>
+                    <span class="badge bg-secondary">{{ ebook.paginas }} páginas</span>
+                    <span class="badge bg-info">Publicado em {{ ebook.data_publicacao|date:"d/m/Y" }}</span>
+                </div>
+                
+                <div class="mb-3">
+                    {% if ebook.gratuito %}
+                    <span class="badge bg-success">Gratuito</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">R$ {{ ebook.preco }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Descrição</h5>
+                    <p>{{ ebook.descricao }}</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Este e-book faz parte da nossa biblioteca educacional. Aproveite para expandir seus conhecimentos sobre saúde e bem-estar familiar.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Recomendações</h5>
+            </div>
+            <div class="card-body">
+                <p>Outros e-books relacionados a este tema:</p>
+                <div class="list-group">
+                    {% for ebook_rec in recomendacoes %}
+                    <a href="{% url 'educacional:ebook_detail' ebook_rec.pk %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ ebook_rec.titulo }}</h6>
+                            <small>{{ ebook_rec.paginas }} páginas</small>
+                        </div>
+                        <p class="mb-1">{{ ebook_rec.descricao|truncatewords:10 }}</p>
+                        <small>{{ ebook_rec.autor }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">Nenhuma recomendação disponível no momento.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Consumo de Água - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">{% if consumo %}Editar{% else %}Registrar{% endif %} Consumo de Água</h1>
+        <p class="lead">Mantenha o registro do seu consumo de água para uma melhor hidratação.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Formulário de Consumo</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Quantidade em ml -->
+                    <div class="mb-3">
+                        <label for="quantidade" class="form-label">Quantidade (ml)</label>
+                        <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="{% if consumo %}{{ consumo.quantidade }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a quantidade de água consumida em mililitros.
+                        </div>
+                    </div>
+                    
+                    <!-- Data e Hora -->
+                    <div class="mb-3">
+                        <label for="data_hora" class="form-label">Data e Hora</label>
+                        <input type="datetime-local" class="form-control" id="data_hora" name="data_hora" value="{% if consumo %}{{ consumo.data_hora|date:'Y-m-d\TH:i' }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a data e hora do consumo.
+                        </div>
+                    </div>
+                    
+                    <!-- Observações -->
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações (opcional)</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3">{% if consumo %}{{ consumo.observacoes }}{% endif %}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'saude:consumo_agua_list' %}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Beba água regularmente ao longo do dia.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Mantenha uma garrafa de água sempre por perto.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> O consumo ideal varia de acordo com seu peso e atividade física.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

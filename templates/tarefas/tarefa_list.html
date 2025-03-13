@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Tarefas - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Minhas Tarefas</h1>
+        <p class="lead">Gerencie suas tarefas diárias e prazos importantes.</p>
+    </div>
+</div>
+
+<!-- Filtros e Busca -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="pendente" {% if status_selecionado == 'pendente' %}selected{% endif %}>Pendentes</option>
+                            <option value="concluida" {% if status_selecionado == 'concluida' %}selected{% endif %}>Concluídas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="prioridade" class="form-label">Prioridade</label>
+                        <select name="prioridade" id="prioridade" class="form-select">
+                            <option value="">Todas</option>
+                            <option value="alta" {% if prioridade_selecionada == 'alta' %}selected{% endif %}>Alta</option>
+                            <option value="media" {% if prioridade_selecionada == 'media' %}selected{% endif %}>Média</option>
+                            <option value="baixa" {% if prioridade_selecionada == 'baixa' %}selected{% endif %}>Baixa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="busca" class="form-label">Buscar</label>
+                        <div class="input-group">
+                            <input type="text" name="busca" id="busca" class="form-control" placeholder="Buscar por descrição" value="{{ busca }}">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botão para adicionar nova tarefa -->
+<div class="row mb-4">
+    <div class="col-12 text-end">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovaTarefa">
+            <i class="fas fa-plus"></i> Nova Tarefa
+        </button>
+    </div>
+</div>
+
+<!-- Lista de Tarefas -->
+<div class="row">
+    {% if tarefas %}
+        {% for tarefa in tarefas %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm {% if tarefa.prioridade == 'alta' %}border-danger{% elif tarefa.prioridade == 'media' %}border-warning{% else %}border-success{% endif %}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="badge {% if tarefa.prioridade == 'alta' %}bg-danger{% elif tarefa.prioridade == 'media' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            {{ tarefa.get_prioridade_display }}
+                        </span>
+                        <span class="badge {% if tarefa.status == 'pendente' %}bg-secondary{% else %}bg-primary{% endif %}">
+                            {{ tarefa.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ tarefa.descricao }}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="far fa-clock"></i> Prazo: {{ tarefa.prazo|date:"d/m/Y H:i" }}
+                            </small>
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            {% if tarefa.status == 'pendente' %}
+                                <a href="{% url 'tarefas:tarefa_concluir' tarefa.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-check"></i> Concluir
+                                </a>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditarTarefa{{ tarefa.id }}">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <a href="{% url 'tarefas:tarefa_delete' tarefa.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash"></i> Excluir
+                            </a>
+                            {% if not tarefa.evento %}
+                                <a href="{% url 'tarefas:tarefa_adicionar_calendario' tarefa.id %}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-calendar-plus"></i> Adicionar ao Calendário
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal para editar tarefa -->
+                <div class="modal fade" id="modalEditarTarefa{{ tarefa.id }}" tabindex="-1" aria-labelledby="modalEditarTarefaLabel{{ tarefa.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalEditarTarefaLabel{{ tarefa.id }}">Editar Tarefa</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <form action="{% url 'tarefas:tarefa_update' tarefa.id %}" method="post">
+                                <div class="modal-body">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="id_descricao{{ tarefa.id }}" class="form-label">Descrição</label>
+                                        <input type="text" name="descricao" id="id_descricao{{ tarefa.id }}" class="form-control" value="{{ tarefa.descricao }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="id_prazo{{ tarefa.id }}" class="form-label">Prazo</label>
+                                        <input type="datetime-local" name="prazo" id="id_prazo{{ tarefa.id }}" class="form-control" value="{{ tarefa.prazo|date:'Y-m-d\TH:i' }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="id_prioridade{{ tarefa.id }}" class="form-label">Prioridade</label>
+                                        <select name="prioridade" id="id_prioridade{{ tarefa.id }}" class="form-select">
+                                            <option value="alta" {% if tarefa.prioridade == 'alta' %}selected{% endif %}>Alta</option>
+                                            <option value="media" {% if tarefa.prioridade == 'media' %}selected{% endif %}>Média</option>
+                                            <option value="baixa" {% if tarefa.prioridade == 'baixa' %}selected{% endif %}>Baixa</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Salvar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Você não possui tarefas cadastradas.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal para adicionar nova tarefa -->
+<div class="modal fade" id="modalNovaTarefa" tabindex="-1" aria-labelledby="modalNovaTarefaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNovaTarefaLabel">Nova Tarefa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form action="{% url 'tarefas:tarefa_create' %}" method="post">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_descricao" class="form-label">Descrição</label>
+                        {{ form.descricao }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_prazo" class="form-label">Prazo</label>
+                        {{ form.prazo }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_prioridade" class="form-label">Prioridade</label>
+                        {{ form.prioridade }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

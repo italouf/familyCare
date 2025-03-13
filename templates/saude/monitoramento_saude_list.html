@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Monitoramento de Saúde - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-3">Monitoramento de Saúde</h1>
+            <p>Acompanhe seus indicadores de saúde e bem-estar.</p>
+            <a href="{% url 'saude:monitoramento_saude_create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus-circle"></i> Novo Registro
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Métricas Atuais -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Métricas Atuais</h5>
+                </div>
+                <div class="card-body">
+                    {% if ultimo_monitoramento %}
+                    <p class="text-center">Nenhum registro encontrado</p>
+                    {% else %}
+                    <p class="text-center">Nenhum registro encontrado</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progresso -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Progresso</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p class="mb-1">Meta de Passos Diários</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
+                        </div>
+                        <small class="text-muted">6.547 de 10.000 passos</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1">Meta de Sono</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 94%;" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100">94%</div>
+                        </div>
+                        <small class="text-muted">7,5 de 8 horas</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Histórico de Monitoramento -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Histórico de Monitoramento</h5>
+                </div>
+                <div class="card-body">
+                    {% if monitoramentos %}
+                    <p class="text-center">Nenhum registro encontrado</p>
+                    {% else %}
+                    <p class="text-center">Nenhum registro encontrado</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

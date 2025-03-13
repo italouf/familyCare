@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Exclusão - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Confirmar Exclusão</h1>
+        <p class="lead">Você tem certeza que deseja excluir este lembrete?</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Atenção</h5>
+            </div>
+            <div class="card-body">
+                <p>Você está prestes a excluir o seguinte lembrete:</p>
+                <p class="fw-bold fs-5">{{ object.titulo }}</p>
+                <p>{{ object.descricao }}</p>
+                <p>
+                    <span class="badge {% if object.tipo == 'urgente' %}bg-danger{% elif object.tipo == 'importante' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                        {{ object.get_tipo_display }}
+                    </span>
+                    <span class="ms-2">
+                        <i class="far fa-clock"></i> Notificação: {{ object.data_notificacao|date:"d/m/Y H:i" }}
+                    </span>
+                </p>
+                <p class="text-danger">Esta ação não pode ser desfeita.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'tarefas:lembrete_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Confirmar Exclusão
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Editar Playlist: {{ form.instance.nome }}
+    {% else %}
+        Criar Nova Playlist
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'entretenimento:midia_list' %}">Entretenimento</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'entretenimento:playlist_list' %}">Playlists</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if form.instance.pk %}
+                    Editar {{ form.instance.nome }}
+                {% else %}
+                    Criar Nova Playlist
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">
+                {% if form.instance.pk %}
+                    Editar Playlist
+                {% else %}
+                    Criar Nova Playlist
+                {% endif %}
+            </h1>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Por favor, corrija os erros abaixo:</strong>
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.nome.id_for_label }}" class="form-label">Nome da Playlist</label>
+                    {{ form.nome|add_class:"form-control" }}
+                    <div class="form-text">Escolha um nome descritivo para sua playlist.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.descricao.id_for_label }}" class="form-label">Descrição</label>
+                    {{ form.descricao|add_class:"form-control" }}
+                    <div class="form-text">Descreva o conteúdo ou tema da sua playlist.</div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    {{ form.publica|add_class:"form-check-input" }}
+                    <label for="{{ form.publica.id_for_label }}" class="form-check-label">Playlist Pública</label>
+                    <div class="form-text">Se marcado, outros usuários poderão ver esta playlist.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.imagem.id_for_label }}" class="form-label">Imagem da Playlist</label>
+                    {% if form.instance.imagem %}
+                        <div class="mb-2">
+                            <img src="{{ form.instance.imagem.url }}" alt="{{ form.instance.nome }}" class="img-thumbnail" style="max-height: 150px;">
+                        </div>
+                    {% endif %}
+                    {{ form.imagem|add_class:"form-control" }}
+                    <div class="form-text">Opcional. Escolha uma imagem para representar sua playlist.</div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        {% if form.instance.pk %}
+                            Atualizar Playlist
+                        {% else %}
+                            Criar Playlist
+                        {% endif %}
+                    </button>
+                    <a href="{% url 'entretenimento:playlist_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

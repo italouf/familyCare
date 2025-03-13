@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lista.nome }} - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'educacional:lista_compras_list' %}">Listas de Compras</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ lista.nome }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h2 mb-0">{{ lista.nome }}</h1>
+            <div class="btn-group">
+                <a href="{% url 'educacional:lista_compras_edit' lista.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-2"></i>Editar
+                </a>
+                <a href="{% url 'educacional:lista_compras_delete' lista.id %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash-alt me-2"></i>Excluir
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Itens da Lista</h5>
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    <i class="fas fa-plus me-1"></i>Adicionar Item
+                </button>
+            </div>
+            <div class="card-body">
+                {% if lista.itens.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantidade</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in lista.itens.all %}
+                            <tr>
+                                <td>{{ item.nome }}</td>
+                                <td>{{ item.quantidade }} {% if item.unidade %}{{ item.unidade }}{% endif %}</td>
+                                <td>
+                                    <span class="badge {% if item.comprado %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {% if item.comprado %}Comprado{% else %}Pendente{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editItemModal{{ item.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <form method="post" action="#" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover este item?')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Esta lista ainda não possui itens. Adicione itens para começar!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Informações da Lista</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-calendar-alt me-2"></i>Data de criação:</span>
+                        <span>{{ lista.data_criacao|date:"d/m/Y H:i" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clock me-2"></i>Última atualização:</span>
+                        <span>{{ lista.data_atualizacao|date:"d/m/Y H:i" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-shopping-basket me-2"></i>Total de itens:</span>
+                        <span class="badge bg-primary rounded-pill">{{ lista.itens.count }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-check-circle me-2"></i>Itens comprados:</span>
+                        <span class="badge bg-success rounded-pill">{{ lista.itens.filter.comprado.count }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="d-grid">
+                    <a href="{% url 'mercado:produto_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>Ir para o Mercado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar item -->
+<div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addItemModalLabel">Adicionar Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="#">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do Item</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="quantidade" class="form-label">Quantidade</label>
+                            <input type="number" class="form-control" id="quantidade" name="quantidade" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="unidade" class="form-label">Unidade</label>
+                            <input type="text" class="form-control" id="unidade" name="unidade" placeholder="kg, g, l, etc">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observacao" class="form-label">Observação</label>
+                        <textarea class="form-control" id="observacao" name="observacao" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modais para editar itens -->
+{% for item in lista.itens.all %}
+<div class="modal fade" id="editItemModal{{ item.id }}" tabindex="-1" aria-labelledby="editItemModalLabel{{ item.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editItemModalLabel{{ item.id }}">Editar Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="#">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nome{{ item.id }}" class="form-label">Nome do Item</label>
+                        <input type="text" class="form-control" id="nome{{ item.id }}" name="nome" value="{{ item.nome }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="quantidade{{ item.id }}" class="form-label">Quantidade</label>
+                            <input type="number" class="form-control" id="quantidade{{ item.id }}" name="quantidade" value="{{ item.quantidade }}" min="1" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="unidade{{ item.id }}" class="form-label">Unidade</label>
+                            <input type="text" class="form-control" id="unidade{{ item.id }}" name="unidade" value="{{ item.unidade }}" placeholder="kg, g, l, etc">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observacao{{ item.id }}" class="form-label">Observação</label>
+                        <textarea class="form-control" id="observacao{{ item.id }}" name="observacao" rows="2">{{ item.observacao }}</textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="comprado{{ item.id }}" name="comprado" {% if item.comprado %}checked{% endif %}>
+                        <label class="form-check-label" for="comprado{{ item.id }}">Item comprado</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

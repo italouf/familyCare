@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ curso.titulo }} - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'educacional:curso_list' %}">Cursos Educacionais</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ curso.titulo }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h2 mb-3">{{ curso.titulo }}</h1>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ curso.get_categoria_display }}</span>
+                    <span class="badge bg-secondary">{{ curso.get_nivel_display }}</span>
+                    <span class="badge bg-info">{{ curso.duracao_horas }} horas</span>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Descrição</h5>
+                    <p>{{ curso.descricao }}</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>O que você vai aprender</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for objetivo in curso.objetivos_aprendizagem.all %}
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i> {{ objetivo.descricao }}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">Informações sobre objetivos de aprendizagem não disponíveis.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                {% if not inscricao %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'educacional:curso_inscrever' curso.pk %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i> Inscrever-se neste Curso
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i> Você já está inscrito neste curso.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if inscricao %}
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Conteúdo do Curso</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="accordionModulos">
+                    {% for modulo in curso.modulos.all %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ modulo.id }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ modulo.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ modulo.id }}">
+                                {{ modulo.titulo }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ modulo.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ modulo.id }}" data-bs-parent="#accordionModulos">
+                            <div class="accordion-body">
+                                <p>{{ modulo.descricao }}</p>
+                                <ul class="list-group list-group-flush">
+                                    {% for aula in modulo.aulas.all %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-play-circle me-2 text-primary"></i>
+                                            {{ aula.titulo }}
+                                            <small class="text-muted ms-2">{{ aula.duracao_minutos }} min</small>
+                                        </div>
+                                        <a href="{% url 'educacional:aula_detail' aula.pk %}" class="btn btn-sm btn-outline-primary">Assistir</a>
+                                    </li>
+                                    {% empty %}
+                                    <li class="list-group-item">Nenhuma aula disponível neste módulo.</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Nenhum módulo disponível para este curso.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        {% if inscricao and progresso %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Seu Progresso</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h1 class="display-4 text-primary">{{ progresso.porcentagem_concluida }}%</h1>
+                    <p class="text-muted">concluído</p>
+                </div>
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ progresso.porcentagem_concluida }}%" aria-valuenow="{{ progresso.porcentagem_concluida }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'educacional:aula_detail' progresso.ultima_aula.pk %}" class="btn btn-primary">
+                        <i class="fas fa-play-circle me-2"></i> Continuar Aprendendo
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Informações do Curso</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clock me-2"></i> Duração</span>
+                        <span>{{ curso.duracao_horas }} horas</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-layer-group me-2"></i> Nível</span>
+                        <span>{{ curso.get_nivel_display }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-users me-2"></i> Alunos</span>
+                        <span>{{ curso.total_inscritos }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-calendar-alt me-2"></i> Atualizado</span>
+                        <span>{{ curso.data_atualizacao|date:"d/m/Y" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Instrutor</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        {% if curso.instrutor.foto %}
+                        <img src="{{ curso.instrutor.foto.url }}" class="rounded-circle" width="60" height="60" alt="{{ curso.instrutor.nome }}">
+                        {% else %}
+                        <div class="rounded-circle bg-light text-center d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-user fa-2x text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-0">{{ curso.instrutor.nome }}</h6>
+                        <p class="text-muted mb-0">{{ curso.instrutor.especialidade }}</p>
+                    </div>
+                </div>
+                <p>{{ curso.instrutor.bio|truncatewords:30 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

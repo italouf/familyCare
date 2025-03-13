@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Meta de Consumo de Água - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Meta de Consumo de Água</h1>
+        <p class="lead">Defina sua meta diária de consumo de água para manter-se hidratado.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Formulário de Meta</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Meta de Água -->
+                    <div class="mb-3">
+                        <label for="meta_ml" class="form-label">Meta Diária (ml)</label>
+                        <input type="number" class="form-control" id="meta_ml" name="meta_ml" min="500" value="{% if meta_agua %}{{ meta_agua.meta_ml }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe sua meta diária de consumo de água em mililitros.
+                        </div>
+                        <small class="text-muted">Recomendação: 2000ml por dia</small>
+                    </div>
+                    
+                    <!-- Observações -->
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações (opcional)</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3">{% if meta_agua %}{{ meta_agua.observacoes }}{% endif %}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'saude:consumo_agua_list' %}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Beba água regularmente ao longo do dia.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Aumente o consumo em dias quentes ou durante exercícios.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Use lembretes para manter-se hidratado.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

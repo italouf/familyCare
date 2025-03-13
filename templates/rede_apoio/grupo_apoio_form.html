@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if grupo %}Editar{% else %}Novo{% endif %} Grupo de Apoio - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'rede_apoio:grupo_apoio_list' %}">Grupos de Apoio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{% if grupo %}Editar{% else %}Novo{% endif %} Grupo</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">{% if grupo %}Editar{% else %}Novo{% endif %} Grupo de Apoio</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do Grupo</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ grupo.nome|default:'' }}" required>
+                        <div class="invalid-feedback">Por favor, informe o nome do grupo.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo de Grupo</label>
+                        <input type="text" class="form-control" id="tipo" name="tipo" value="{{ grupo.tipo|default:'' }}" required>
+                        <div class="invalid-feedback">Por favor, informe o tipo do grupo.</div>
+                        <div class="form-text">Ex: Alzheimer, Parkinson, Cuidadores, etc.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="4" required>{{ grupo.descricao|default:'' }}</textarea>
+                        <div class="invalid-feedback">Por favor, forneça uma descrição para o grupo.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="local" class="form-label">Local de Encontro</label>
+                        <input type="text" class="form-control" id="local" name="local" value="{{ grupo.local|default:'' }}">
+                        <div class="form-text">Opcional</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="horario" class="form-label">Horário de Funcionamento</label>
+                        <input type="text" class="form-control" id="horario" name="horario" value="{{ grupo.horario|default:'' }}">
+                        <div class="form-text">Opcional. Ex: Segundas e quartas, 19h às 21h</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="contato" class="form-label">Contato</label>
+                        <input type="text" class="form-control" id="contato" name="contato" value="{{ grupo.contato|default:'' }}">
+                        <div class="form-text">Opcional</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="website" class="form-label">Website</label>
+                        <input type="url" class="form-control" id="website" name="website" value="{{ grupo.website|default:'' }}">
+                        <div class="form-text">Opcional</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'rede_apoio:grupo_apoio_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validação do formulário
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
+{% endblock %}

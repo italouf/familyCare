@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Lista de Compras - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'educacional:lista_compras_list' %}">Listas de Compras</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Excluir Lista</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Excluir Lista de Compras</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">Você tem certeza que deseja excluir a lista de compras "{{ lista.nome }}"?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i>Excluir
+                        </button>
+                        <a href="{% url 'educacional:lista_compras_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

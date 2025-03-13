@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Produtos</h1>
+        <p class="lead">Encontre os melhores produtos para sua família.</p>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Buscar Produtos</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Buscar</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Digite o nome do produto...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select name="categoria" id="categoria" class="form-select">
+                            <option value="">Todas as categorias</option>
+                            {% for key, value in categorias.items %}
+                                <option value="{{ key }}" {% if categoria_selecionada == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="ordenar" class="form-label">Ordenar por</label>
+                        <select name="ordenar" id="ordenar" class="form-select">
+                            <option value="nome">Nome</option>
+                            <option value="preco_menor">Menor Preço</option>
+                            <option value="preco_maior">Maior Preço</option>
+                            <option value="mais_vendidos">Mais Vendidos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products Carousel -->
+{% if produtos_destaque %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="h4 mb-3">Produtos em Destaque</h2>
+        <div id="produtosDestaque" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for grupo in produtos_destaque|slice:":3" %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="row">
+                        {% for produto in grupo %}
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm">
+                                {% if produto.imagem %}
+                                <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}">
+                                {% else %}
+                                <div class="card-img-top bg-light text-center py-5">
+                                    <i class="fas fa-box fa-3x text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ produto.nome }}</h5>
+                                    <p class="card-text text-muted small mb-2">
+                                        <span class="badge bg-primary">{{ produto.categoria.nome }}</span>
+                                    </p>
+                                    <p class="card-text">{{ produto.descricao|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 mb-0 text-primary">R$ {{ produto.preco }}</span>
+                                        <button class="btn btn-sm btn-outline-primary">Adicionar ao Carrinho</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#produtosDestaque" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#produtosDestaque" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Próximo</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Product Grid -->
+<div class="row">
+    {% if produtos %}
+        {% for produto in produtos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if produto.imagem %}
+                <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}">
+                {% else %}
+                <div class="card-img-top bg-light text-center py-5">
+                    <i class="fas fa-box fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ produto.nome }}</h5>
+                    <p class="card-text text-muted small mb-2">
+                        <span class="badge bg-primary">{{ produto.categoria.nome }}</span>
+                    </p>
+                    <p class="card-text">{{ produto.descricao|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0 text-primary">R$ {{ produto.preco }}</span>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary">Adicionar ao Carrinho</button>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#produtoModal{{ produto.id }}">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Modal -->
+        <div class="modal fade" id="produtoModal{{ produto.id }}" tabindex="-1" aria-labelledby="produtoModalLabel{{ produto.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="produtoModalLabel{{ produto.id }}">{{ produto.nome }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% if produto.imagem %}
+                                <img src="{{ produto.imagem.url }}" class="img-fluid" alt="{{ produto.nome }}">
+                                {% else %}
+                                <div class="bg-light text-center py-5">
+                                    <i class="fas fa-box fa-5x text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Descrição</h5>
+                                <p>{{ produto.descricao }}</p>
+                                <h5>Categoria</h5>
+                                <p><span class="badge bg-primary">{{ produto.categoria.nome }}</span></p>
+                                <h5>Preço</h5>
+                                <p class="h4 text-primary">R$ {{ produto.preco }}</p>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-shopping-cart me-2"></i>Adicionar ao Carrinho
+                                    </button>
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-heart me-2"></i>Adicionar à Lista de Desejos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Nenhum produto encontrado com os filtros selecionados.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

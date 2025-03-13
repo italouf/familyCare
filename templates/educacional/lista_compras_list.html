@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Listas de Compras - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Minhas Listas de Compras</h1>
+        <p class="lead">Gerencie suas listas de compras para facilitar suas idas ao mercado.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{% url 'educacional:lista_compras_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nova Lista
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if listas %}
+        {% for lista in listas %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ lista.nome }}</h5>
+                    <p class="card-text text-muted">
+                        <i class="fas fa-calendar-alt me-2"></i>Criada em: {{ lista.data_criacao|date:"d/m/Y" }}
+                    </p>
+                    <p class="card-text text-muted">
+                        <i class="fas fa-clock me-2"></i>Atualizada em: {{ lista.data_atualizacao|date:"d/m/Y H:i" }}
+                    </p>
+                    <p class="card-text">
+                        <span class="badge {% if lista.concluida %}bg-success{% else %}bg-primary{% endif %}">
+                            {% if lista.concluida %}Concluída{% else %}Em andamento{% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'educacional:lista_compras_detail' lista.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-info-circle me-1"></i>Detalhes
+                        </a>
+                        <a href="{% url 'educacional:lista_compras_edit' lista.id %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Editar
+                        </a>
+                        <a href="{% url 'educacional:lista_compras_delete' lista.id %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash-alt me-1"></i>Excluir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Você ainda não possui listas de compras. Crie uma nova lista para começar!
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

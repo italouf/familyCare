@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Entretenimento - Playlists{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Minhas Playlists</h1>
+        <a href="{% url 'entretenimento:playlist_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Criar Nova Playlist
+        </a>
+    </div>
+    
+    <!-- Minhas playlists -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        {% for playlist in playlists %}
+            {% if playlist.usuario == user %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if playlist.imagem %}
+                            <img src="{{ playlist.imagem.url }}" class="card-img-top" alt="{{ playlist.nome }}" style="height: 160px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light text-center py-4" style="height: 160px;">
+                                <i class="bi bi-music-note-list fs-1"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ playlist.nome }}</h5>
+                            <p class="card-text text-muted">{{ playlist.itens.count }} item(s)</p>
+                            <p class="card-text">{{ playlist.descricao|truncatechars:100 }}</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="{% url 'entretenimento:playlist_detail' pk=playlist.pk %}" class="btn btn-sm btn-primary">Ver detalhes</a>
+                            <div>
+                                <a href="{% url 'entretenimento:playlist_update' pk=playlist.pk %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'entretenimento:playlist_delete' pk=playlist.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Você ainda não criou nenhuma playlist. 
+                    <a href="{% url 'entretenimento:playlist_create' %}" class="alert-link">Criar uma agora</a>.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Playlists públicas -->
+    <h2 class="mb-4">Playlists Públicas</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for playlist in playlists %}
+            {% if playlist.usuario != user and playlist.publica %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if playlist.imagem %}
+                            <img src="{{ playlist.imagem.url }}" class="card-img-top" alt="{{ playlist.nome }}" style="height: 160px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light text-center py-4" style="height: 160px;">
+                                <i class="bi bi-music-note-list fs-1"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ playlist.nome }}</h5>
+                            <p class="card-text text-muted">
+                                <small>Criada por: {{ playlist.usuario.username }}</small><br>
+                                <small>{{ playlist.itens.count }} item(s)</small>
+                            </p>
+                            <p class="card-text">{{ playlist.descricao|truncatechars:100 }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'entretenimento:playlist_detail' pk=playlist.pk %}" class="btn btn-sm btn-primary">Ver detalhes</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Não há playlists públicas disponíveis no momento.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

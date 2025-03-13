@@ -1,0 +1,127 @@
+/* Custom CSS for FamilyCare */
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* Header Styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Footer Styles */
+footer {
+    margin-top: 2rem;
+}
+
+/* Card Styles */
+.card {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Custom Utility Classes */
+.text-primary-dark {
+    color: #0a58ca;
+}
+
+.bg-light-gray {
+    background-color: #f1f1f1;
+}
+
+/* Dashboard Widgets */
+.dashboard-widget {
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-widget-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #0d6efd;
+}
+
+/* Health Monitoring Styles */
+.health-stat {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: rgba(13, 110, 253, 0.1);
+    margin-bottom: 1rem;
+}
+
+.health-stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.health-stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Water Consumption Styles */
+.water-progress {
+    height: 10px;
+    border-radius: 5px;
+}
+
+/* Night Mode Toggle */
+.night-mode-toggle {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.night-mode-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Emergency Contact Styles */
+.emergency-contact {
+    border-left: 4px solid #dc3545;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.emergency-contact-name {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .dashboard-widget {
+        padding: 1rem;
+    }
+    
+    .health-stat-value {
+        font-size: 1.5rem;
+    }
+}

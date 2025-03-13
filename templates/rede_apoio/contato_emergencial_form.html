@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if contato %}Editar{% else %}Novo{% endif %} Contato Emergencial - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'rede_apoio:contato_emergencial_list' %}">Contatos Emergenciais</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{% if contato %}Editar{% else %}Novo{% endif %} Contato</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">{% if contato %}Editar{% else %}Novo{% endif %} Contato Emergencial</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ contato.nome|default:'' }}" required>
+                        <div class="invalid-feedback">Por favor, informe o nome do contato.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="relacao" class="form-label">Relação</label>
+                        <select class="form-select" id="relacao" name="relacao" required>
+                            <option value="" disabled {% if not contato %}selected{% endif %}>Selecione...</option>
+                            <option value="familiar" {% if contato.tipo == 'familiar' %}selected{% endif %}>Familiar</option>
+                            <option value="amigo" {% if contato.tipo == 'amigo' %}selected{% endif %}>Amigo</option>
+                            <option value="medico" {% if contato.tipo == 'medico' %}selected{% endif %}>Médico</option>
+                            <option value="cuidador" {% if contato.tipo == 'cuidador' %}selected{% endif %}>Cuidador</option>
+                            <option value="outro" {% if contato.tipo == 'outro' %}selected{% endif %}>Outro</option>
+                        </select>
+                        <div class="invalid-feedback">Por favor, selecione a relação com o contato.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="tel" class="form-control" id="telefone" name="telefone" value="{{ contato.telefone|default:'' }}" required>
+                        <div class="invalid-feedback">Por favor, informe o telefone do contato.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ contato.email|default:'' }}">
+                        <div class="form-text">Opcional</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" id="endereco" name="endereco" value="{{ contato.endereco|default:'' }}">
+                        <div class="form-text">Opcional</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="prioridade" class="form-label">Prioridade</label>
+                        <select class="form-select" id="prioridade" name="prioridade" required>
+                            <option value="" disabled {% if not contato %}selected{% endif %}>Selecione...</option>
+                            <option value="A" {% if contato.prioridade == 'A' %}selected{% endif %}>Alta</option>
+                            <option value="M" {% if contato.prioridade == 'M' %}selected{% endif %}>Média</option>
+                            <option value="B" {% if contato.prioridade == 'B' %}selected{% endif %}>Baixa</option>
+                        </select>
+                        <div class="invalid-feedback">Por favor, selecione a prioridade do contato.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3">{{ contato.observacoes|default:'' }}</textarea>
+                        <div class="form-text">Opcional</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'rede_apoio:contato_emergencial_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validação do formulário
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
+{% endblock %}

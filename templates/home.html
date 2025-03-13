@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FamilyCare - Início{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<!-- Chart.js para gráficos interativos -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 mb-4">Bem-vindo ao FamilyCare</h1>
+        <p class="lead">Seu assistente completo para cuidados familiares, saúde e bem-estar.</p>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<!-- Dashboard para usuários logados -->
+
+<!-- Cabeçalho com ícones de acesso rápido -->
+<div class="dashboard-header">
+    <div>
+        <h5 class="mb-0">Seu Dashboard</h5>
+        <small class="text-muted">Arraste os cards para personalizar</small>
+    </div>
+    <div class="quick-access-icons">
+        <!-- Meta de água (progresso circular) -->
+        <div class="quick-access-icon">
+            <div class="circular-progress" style="--progress: {{ water_percentage|default:0 }}deg;">
+                <span>{{ water_percentage|default:0 }}%</span>
+            </div>
+            <span>Água</span>
+        </div>
+        
+        <!-- Próxima tarefa -->
+        <div class="quick-access-icon">
+            <i class="fas fa-tasks"></i>
+            <span>Tarefas</span>
+        </div>
+        
+        <!-- Notificações -->
+        <div class="quick-access-icon">
+            <i class="fas fa-bell"></i>
+            <span>Alertas</span>
+        </div>
+        
+        <!-- Modo noturno toggle -->
+        <div class="quick-access-icon">
+            <i class="fas fa-moon"></i>
+            <span>Noturno</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Conteúdo principal (2/3 da largura) -->
+    <div class="col-lg-8">
+        <!-- Container para cards arrastáveis -->
+        <div class="draggable-container" id="mainContainer">
+            
+            <!-- Gráfico interativo de saúde -->
+            <div class="draggable-card" draggable="true" data-card-id="health-chart">
+                <div class="dashboard-widget-title">
+                    <i class="fas fa-chart-line me-2"></i>Monitoramento Semanal
+                </div>
+                <div class="chart-container">
+                    <canvas id="healthChart" height="200"></canvas>
+                </div>
+            </div>
+            
+            <!-- Widget de Bem-Estar Diário (Humor) -->
+            <div class="draggable-card" draggable="true" data-card-id="mood-tracker">
+                <div class="dashboard-widget-title">
+                    <i class="fas fa-smile me-2"></i>Como você está hoje?
+                </div>
+                <div class="mood-tracker">
+                    <div class="mood-emoji" data-mood="great">😁</div>
+                    <div class="mood-emoji" data-mood="good">🙂</div>
+                    <div class="mood-emoji" data-mood="neutral">😐</div>
+                    <div class="mood-emoji" data-mood="bad">🙁</div>
+                    <div class="mood-emoji" data-mood="terrible">😞</div>
+                </div>
+            </div>
+            
+            <!-- Saúde & Bem-Estar Widget -->
+            <div class="draggable-card" draggable="true" data-card-id="health">
+                <div class="dashboard-widget">
+                    <div class="dashboard-widget-title">
+                        <i class="fas fa-heartbeat me-2"></i>Saúde & Bem-Estar
+                    </div>
+                    <div class="mb-3">
+                        <h6>Consumo de Água Hoje</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-info water-progress" role="progressbar" style="width: 0%" 
+                                 aria-valuenow="{{ water_percentage|default:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ water_percentage|default:0 }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ water_consumed|default:0 }}ml de {{ water_goal|default:2000 }}ml</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Última Atividade Física</h6>
+                        {% if last_activity %}
+                        <p>{{ last_activity.get_tipo_display }} - {{ last_activity.data }}<br>
+                           <small class="text-muted">{{ last_activity.duracao }} minutos</small>
+                        </p>
+                        {% else %}
+                        <p class="text-muted">Nenhuma atividade registrada</p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'saude:atividade_fisica_list' %}" class="btn btn-sm btn-outline-primary">Ver mais</a>
+                </div>
+            </div>
+            
+            <!-- Nutrição Widget com Carrossel -->
+            <div class="draggable-card" draggable="true" data-card-id="nutrition">
+                <div class="dashboard-widget">
+                    <div class="dashboard-widget-title">
+                        <i class="fas fa-utensils me-2"></i>Nutrição
+                    </div>
+                    <div class="mb-3">
+                        <h6>Plano Alimentar Atual</h6>
+                        {% if current_plan %}
+                        <p>{{ current_plan.objetivo }}<br>
+                           <small class="text-muted">Iniciado em {{ current_plan.data_inicio }}</small>
+                        </p>
+                        {% else %}
+                        <p class="text-muted">Nenhum plano ativo</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Carrossel de Marmitas Recomendadas -->
+                    <div id="marmitasCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for marmita in recommended_meals|slice:":4" %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="carousel-card">
+                                    <h6>{{ marmita.nome }}</h6>
+                                    <p class="small">{{ marmita.get_categoria_display }}</p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="carousel-item active">
+                                <div class="carousel-card">
+                                    <p class="text-muted">Nenhuma marmita recomendada</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#marmitasCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#marmitasCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Próximo</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'nutricao:marmita_list' %}" class="btn btn-sm btn-outline-primary">Ver catálogo</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conteúdo Educacional Widget
+            <div class="draggable-card" draggable="true" data-card-id="education">
+                <div class="dashboard-widget">
+                    <div class="dashboard-widget-title">
+                        <i class="fas fa-graduation-cap me-2"></i>Conteúdo Educacional
+                    </div>
+                    <div class="row">
+                        {% for curso in random_courses %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                {% if curso.imagem %}
+                                <img src="{{ curso.imagem.url }}" class="card-img-top" alt="{{ curso.titulo }}" style="height: 140px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ curso.titulo }}</h6>
+                                    <p class="card-text small">{{ curso.descricao|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-primary">{{ curso.get_categoria_display }}</span>
+                                        <span class="badge bg-secondary">{{ curso.get_nivel_display }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-muted">Nenhum curso disponível no momento.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'educacional:curso_list' %}" class="btn btn-sm btn-outline-primary">Ver todos os cursos</a>
+                    </div>
+                </div>
+            </div> -->
+            
+            <!-- Mercado Online Widget -->
+            <div class="draggable-card" draggable="true" data-card-id="market">
+                <div class="dashboard-widget">
+                    <div class="dashboard-widget-title">
+                        <i class="fas fa-shopping-cart me-2"></i>Mercado Online
+                    </div>
+                    
+                    <!-- Carrossel de Promoções -->
+                    <div id="promocoesCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for promocao in promocoes %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="carousel-card">
+                                    <img src="{{ promocao.produto.imagem.url }}" alt="{{ promocao.produto.nome }}" class="img-fluid mb-2" style="max-height: 150px; object-fit: contain;">
+                                    <h6>{{ promocao.produto.nome }}</h6>
+                                    <p class="mb-1"><del class="text-muted">R$ {{ promocao.produto.preco }}</del></p>
+                                    <p class="text-success fw-bold">R$ {{ promocao.preco_promocional }}</p>
+                                    <small class="text-muted">Válido até {{ promocao.data_fim|date:"d/m/Y" }}</small>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="carousel-item active">
+                                <div class="carousel-card">
+                                    <h6>Promoções da Semana</h6>
+                                    <p class="small">Confira as ofertas especiais</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#promocoesCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#promocoesCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Próximo</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'mercado:produto_list' %}" class="btn btn-sm btn-outline-primary">Ver produtos</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Educacional & Entretenimento Widget -->
+            <div class="draggable-card" draggable="true" data-card-id="education">
+                <div class="dashboard-widget">
+                    <div class="dashboard-widget-title">
+                        <i class="fas fa-graduation-cap me-2"></i>Conteúdo Educacional
+                    </div>
+                    
+                    <!-- Carrossel de Cursos Recomendados -->
+                    <div id="cursosCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for curso in random_courses|slice:":4" %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="carousel-card">
+                                    {% if curso.imagem %}
+                                    <img src="{{ curso.imagem.url }}" alt="{{ curso.titulo }}" class="img-fluid mb-2" style="max-height: 150px; object-fit: contain;">
+                                    {% endif %}
+                                    <h6>{{ curso.titulo }}</h6>
+                                    <p class="small">{{ curso.get_categoria_display }} - {{ curso.get_nivel_display }}</p>
+                                    <p class="small text-muted">{{ curso.descricao|truncatewords:20 }}</p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="carousel-item active">
+                                <div class="carousel-card">
+                                    <p class="text-muted">Nenhum curso disponível</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#cursosCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#cursosCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Próximo</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'educacional:curso_list' %}" class="btn btn-sm btn-outline-primary">Ver catálogo</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tarefas Diárias Widget -->
+            <div class="draggable-card" draggable="true" data-card-id="tasks">
+                <div class="dashboard-widget">
+                    <div class="dashboard-widget-title">
+                        <i class="fas fa-tasks me-2"></i>Tarefas Diárias
+                    </div>
+                    <div class="mb-3">
+                        <h6>Prazos Críticos</h6>
+                        <ul class="list-unstyled">
+                            {% if tarefas %}
+                                {% for tarefa in tarefas %}
+                                    <li class="mb-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <span class="{% if tarefa.prioridade == 'alta' %}text-danger{% elif tarefa.prioridade == 'media' %}text-warning{% else %}text-info{% endif %}">
+                                                    {{ tarefa.descricao }}
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">Prazo: {{ tarefa.prazo|date:"d/m/Y H:i" }}</small>
+                                            </div>
+                                            <span class="badge {% if tarefa.prioridade == 'alta' %}bg-danger{% elif tarefa.prioridade == 'media' %}bg-warning{% else %}bg-info{% endif %}">
+                                                {{ tarefa.get_prioridade_display }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="text-muted">Você não possuí tarefas cadastradas</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'tarefas:tarefa_list' %}" class="btn btn-sm btn-outline-primary">Ver tarefas</a>
+                        <a href="{% url 'tarefas:tarefa_create' %}" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Nova tarefa</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar fixa (1/3 da largura) -->
+    <div class="col-lg-4">
+        <div class="dashboard-sidebar">
+            <!-- Seção de Contatos de Emergência -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <i class="fas fa-phone-alt"></i> Contatos de Emergência
+                </div>
+                {% for contato in emergency_contacts|slice:":3" %}
+                <div class="emergency-contact">
+                    <div class="emergency-contact-name">{{ contato.nome }}</div>
+                    <div>{{ contato.get_tipo_display }}</div>
+                    <button class="btn btn-sm btn-danger mt-1 emergency-dial" 
+                            data-phone="{{ contato.telefone }}" data-name="{{ contato.nome }}">
+                        <i class="fas fa-phone-alt"></i> Ligar
+                    </button>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nenhum contato cadastrado</p>
+                {% endfor %}
+                <a href="{% url 'rede_apoio:contato_emergencial_list' %}" class="btn btn-sm btn-outline-primary mt-2">Gerenciar contatos</a>
+            </div>
+            
+            <!-- Seção de Serviços de Babás -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <i class="fas fa-baby"></i> Serviço de Babás
+                </div>
+                {% for servico in babysitting_services|slice:":3" %}
+                <div class="babysitting-service mb-2">
+                    <div><strong>Data:</strong> {{ servico.data|date:"d/m/Y" }}</div>
+                    <div><strong>Horário:</strong> {{ servico.horario_inicio }} - {{ servico.horario_fim }}</div>
+                    <div><small class="text-muted">{{ servico.observacoes|truncatechars:50 }}</small></div>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nenhum serviço agendado</p>
+                {% endfor %}
+                <a href="{% url 'tarefas:servico_baba_list' %}" class="btn btn-sm btn-outline-primary">Agendar serviço</a>
+            </div>
+            
+            <!-- Seção de Eventos do Dia -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">
+                    <i class="fas fa-calendar-day"></i> Eventos do Dia
+                </div>
+                {% for evento in daily_events|slice:":3" %}
+                <div class="daily-event mb-2">
+                    <div><strong>{{ evento.titulo }}</strong></div>
+                    <div><small>{{ evento.data_inicio|time:"H:i" }} - {{ evento.data_fim|time:"H:i" }}</small></div>
+                    <div><small class="text-muted">{{ evento.descricao|truncatechars:50 }}</small></div>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nenhum evento hoje</p>
+                {% endfor %}
+                <a href="{% url 'educacional:evento_list' %}" class="btn btn-sm btn-outline-primary">Ver eventos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botão de ação flutuante para acesso rápido -->
+<div class="floating-action-button" id="floatingActionBtn">
+    <button class="btn btn-primary rounded-circle">
+        <i class="fas fa-plus"></i>
+    </button>
+    <div class="floating-menu">
+        <a href="{% url 'saude:atividade_fisica_create' %}" class="floating-item" title="Nova Atividade Física">
+            <i class="fas fa-running"></i>
+        </a>
+        <a href="{% url 'saude:consumo_agua_create' %}" class="floating-item" title="Registrar Consumo de Água">
+            <i class="fas fa-tint"></i>
+        </a>
+        <a href="{% url 'tarefas:tarefa_create' %}" class="floating-item" title="Nova Tarefa">
+            <i class="fas fa-tasks"></i>
+        </a>
+        <a href="{% url 'rede_apoio:contato_emergencial_create' %}" class="floating-item" title="Novo Contato">
+            <i class="fas fa-phone-alt"></i>
+        </a>
+    </div>
+</div>
+
+{% else %}
+<!-- Conteúdo para visitantes não logados -->
+<div class="row align-items-center">
+    <div class="col-lg-6 mb-4">
+        <h2>Cuide da sua família com tecnologia</h2>
+        <p class="lead">O FamilyCare é uma plataforma completa para gerenciar a saúde e o bem-estar de toda a família.</p>
+        <ul class="list-unstyled">
+            <li><i class="fas fa-check-circle text-success me-2"></i> Monitoramento de saúde</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Planos alimentares personalizados</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Rede de contatos emergenciais</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Conteúdo educacional</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Modo noturno para melhor descanso</li>
+        </ul>
+        <div class="mt-4">
+            <a href="{% url 'register' %}" class="btn btn-primary me-2">Cadastre-se Grátis</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary">Entrar</a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <img src="{% static 'img/family-care.png' %}" alt="FamilyCare" class="img-fluid rounded shadow">
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h3 class="text-center mb-4">Nossos Módulos</h3>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-heartbeat fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Saúde & Bem-Estar</h5>
+                <p class="card-text">Monitore atividades físicas, consumo de água e indicadores de saúde.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Nutrição</h5>
+                <p class="card-text">Planos alimentares personalizados e catálogo de marmitas saudáveis.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Rede de Apoio</h5>
+                <p class="card-text">Gerencie contatos emergenciais e acesse grupos de apoio.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Educacional</h5>
+                <p class="card-text">Acesse cursos, e-books e videoaulas sobre saúde e bem-estar.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- JavaScript para funcionalidades interativas -->
+{% block extra_js %}
+<!-- Chart.js para gráficos interativos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<!-- Dashboard JavaScript personalizado -->
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
+{% endblock %}

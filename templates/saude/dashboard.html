@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard de Saúde - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Dashboard de Saúde</h1>
+        <p class="lead">Acompanhe seus indicadores de saúde e bem-estar em um só lugar.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Resumo de Atividades Físicas -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-running me-2"></i>Atividades Físicas
+            </div>
+            <div class="mb-3">
+                <h6>Última Atividade</h6>
+                {% if ultima_atividade %}
+                <p>{{ ultima_atividade.get_tipo_display }} - {{ ultima_atividade.data }}<br>
+                   <small class="text-muted">{{ ultima_atividade.duracao }} minutos</small>
+                </p>
+                {% else %}
+                <p class="text-muted">Nenhuma atividade registrada</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'saude:atividade_fisica_list' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+            <a href="{% url 'saude:atividade_fisica_create' %}" class="btn btn-sm btn-primary ms-2">
+                <i class="fas fa-plus-circle"></i> Nova
+            </a>
+        </div>
+    </div>
+    
+    <!-- Consumo de Água -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-tint me-2"></i>Consumo de Água
+            </div>
+            <div class="mb-3">
+                <h6>Progresso de Hoje</h6>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-info water-progress" role="progressbar" 
+                         style="width: 0%" aria-valuenow="{{ porcentagem_agua }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        {{ porcentagem_agua }}%
+                    </div>
+                </div>
+                <small class="text-muted">{{ total_agua_hoje }}ml de {{ meta_diaria }}ml</small>
+            </div>
+            <a href="{% url 'saude:consumo_agua_list' %}" class="btn btn-sm btn-outline-primary">Ver detalhes</a>
+            <a href="{% url 'saude:consumo_agua_create' %}" class="btn btn-sm btn-primary ms-2">
+                <i class="fas fa-plus-circle"></i> Adicionar
+            </a>
+        </div>
+    </div>
+    
+    <!-- Monitoramento de Saúde -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-heartbeat me-2"></i>Monitoramento
+            </div>
+            <div class="mb-3">
+                <h6>Último Registro</h6>
+                {% if ultimo_monitoramento %}
+                <div class="row">
+                    <div class="col-6">
+                        <div class="health-stat">
+                            <div class="health-stat-value">{{ ultimo_monitoramento.passos|default:"--" }}</div>
+                            <div class="health-stat-label">Passos</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="health-stat">
+                            <div class="health-stat-value">{{ ultimo_monitoramento.horas_sono|default:"--" }}</div>
+                            <div class="health-stat-label">Horas de Sono</div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhum monitoramento registrado</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'saude:monitoramento_saude_list' %}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            <a href="{% url 'saude:monitoramento_saude_create' %}" class="btn btn-sm btn-primary ms-2">
+                <i class="fas fa-plus-circle"></i> Novo
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Estatísticas Gerais -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Estatísticas Gerais</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                    <i class="fas fa-running text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">Atividades</h6>
+                                <p class="mb-0 text-muted">{{ atividades_count|default:"0" }} registros</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                    <i class="fas fa-tint text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">Água</h6>
+                                <p class="mb-0 text-muted">{{ consumos_count|default:"0" }} registros</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                    <i class="fas fa-heartbeat text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">Monitoramentos</h6>
+                                <p class="mb-0 text-muted">{{ monitoramentos_count|default:"0" }} registros</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                    <i class="fas fa-bed text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">Sono</h6>
+                                <p class="mb-0 text-muted">{{ media_sono|default:"0" }} horas (média)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dicas de Saúde -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas de Saúde</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6><i class="fas fa-running text-primary me-2"></i>Atividade Física</h6>
+                    <p>Pratique pelo menos 150 minutos de atividade física moderada por semana para manter a saúde cardiovascular.</p>
+                </div>
+                <div class="mb-3">
+                    <h6><i class="fas fa-tint text-info me-2"></i>Hidratação</h6>
+                    <p>Beba água regularmente ao longo do dia, mesmo quando não sentir sede, para manter o corpo bem hidratado.</p>
+                </div>
+                <div class="mb-3">
+                    <h6><i class="fas fa-bed text-warning me-2"></i>Sono</h6>
+                    <p>Procure dormir de 7 a 9 horas por noite para garantir um bom descanso e recuperação do organismo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animar a barra de progresso
+        const waterProgress = document.querySelector('.water-progress');
+        const value = waterProgress.getAttribute('aria-valuenow');
+        waterProgress.style.width = value + '%';
+    });
+</script>
+{% endblock %}

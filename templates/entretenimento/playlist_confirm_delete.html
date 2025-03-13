@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Playlist: {{ playlist.nome }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'entretenimento:midia_list' %}">Entretenimento</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'entretenimento:playlist_list' %}">Playlists</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'entretenimento:playlist_detail' pk=playlist.pk %}">{{ playlist.nome }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Excluir</li>
+        </ol>
+    </nav>
+    
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h1 class="h3 mb-0">Excluir Playlist</h1>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Atenção:</strong> Esta ação não pode ser desfeita!
+            </div>
+            
+            <p class="mb-4">Você está prestes a excluir a playlist <strong>"{{ playlist.nome }}"</strong> que contém <strong>{{ playlist.itens.count }}</strong> item(s).</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Confirmar Exclusão
+                    </button>
+                    <a href="{% url 'entretenimento:playlist_detail' pk=playlist.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

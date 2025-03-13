@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Serviço de Babás - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Serviço de Babás</h1>
+        <p class="lead">Agende e gerencie serviços de babá para seus filhos.</p>
+    </div>
+</div>
+
+<!-- Botão para adicionar novo serviço -->
+<div class="row mb-4">
+    <div class="col-12 text-end">
+        <a href="{% url 'tarefas:servico_baba_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Solicitar Serviço
+        </a>
+    </div>
+</div>
+
+<!-- Lista de Serviços -->
+<div class="row">
+    {% if servicos %}
+        {% for servico in servicos %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="badge {% if servico.status == 'agendado' %}bg-primary{% elif servico.status == 'concluido' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ servico.get_status_display }}
+                        </span>
+                        <span class="badge bg-info">
+                            {{ servico.get_tipo_servico_display }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ servico.data|date:"d/m/Y" }}</h5>
+                        <p class="card-text">
+                            <i class="far fa-clock"></i> {{ servico.horario_inicio|time:"H:i" }} - {{ servico.horario_fim|time:"H:i" }}<br>
+                            <i class="fas fa-map-marker-alt"></i> {{ servico.local }}
+                        </p>
+                        {% if servico.contato %}
+                            <p class="card-text">
+                                <i class="fas fa-user"></i> Babá: {{ servico.contato.nome }}<br>
+                                <i class="fas fa-phone"></i> {{ servico.contato.telefone }}
+                            </p>
+                        {% endif %}
+                        {% if servico.observacoes %}
+                            <p class="card-text">
+                                <small class="text-muted">{{ servico.observacoes|truncatechars:100 }}</small>
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'tarefas:servico_baba_detail' servico.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i> Detalhes
+                            </a>
+                            {% if servico.status == 'agendado' %}
+                                <a href="{% url 'tarefas:servico_baba_cancelar' servico.id %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                {% if servico.contato %}
+                                    <a href="{% url 'tarefas:servico_baba_contatar' servico.id %}" class="btn btn-outline-success btn-sm">
+                                        <i class="fab fa-whatsapp"></i> Contatar
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Você não possui serviços de babá agendados.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ videoaula.titulo }} - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'educacional:videoaula_list' %}">Videoaulas Educacionais</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ videoaula.titulo }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe src="{{ videoaula.url_video }}" title="{{ videoaula.titulo }}" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h1 class="h2 mb-2">{{ videoaula.titulo }}</h1>
+                {% if videoaula.curso %}
+                <h6 class="card-subtitle mb-3 text-muted">Parte do curso: <a href="{% url 'educacional:curso_detail' videoaula.curso.pk %}">{{ videoaula.curso.titulo }}</a></h6>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <span class="badge bg-secondary">{{ videoaula.duracao_minutos }} minutos</span>
+                    <span class="badge bg-info">Publicado em {{ videoaula.data_publicacao|date:"d/m/Y" }}</span>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>Descrição</h5>
+                    <p>{{ videoaula.descricao }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        {% if videoaula.curso %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Sobre o Curso</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ videoaula.curso.titulo }}</h6>
+                <p class="mb-2">{{ videoaula.curso.descricao|truncatewords:30 }}</p>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ videoaula.curso.get_categoria_display }}</span>
+                    <span class="badge bg-secondary">{{ videoaula.curso.get_nivel_display }}</span>
+                </div>
+                <div class="d-grid">
+                    <a href="{% url 'educacional:curso_detail' videoaula.curso.pk %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-info-circle me-1"></i> Ver detalhes do curso
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Videoaulas Relacionadas</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for video_rel in videos_relacionados %}
+                    <a href="{% url 'educacional:videoaula_detail' video_rel.pk %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex">
+                            {% if video_rel.thumbnail %}
+                            <div class="flex-shrink-0 me-3" style="width: 80px;">
+                                <img src="{{ video_rel.thumbnail.url }}" class="img-fluid rounded" alt="{{ video_rel.titulo }}">
+                            </div>
+                            {% else %}
+                            <div class="flex-shrink-0 me-3 bg-light rounded text-center" style="width: 80px; height: 45px;">
+                                <i class="fas fa-video text-muted" style="line-height: 45px;"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ video_rel.titulo }}</h6>
+                                <small class="text-muted">{{ video_rel.duracao_minutos }} minutos</small>
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">Nenhuma videoaula relacionada disponível.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Catálogo de Marmitas - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Catálogo de Marmitas</h1>
+        <p class="lead">Encontre opções saudáveis e saborosas para suas refeições diárias.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-5">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select name="categoria" id="categoria" class="form-select">
+                            <option value="">Todas as categorias</option>
+                            {% for key, value in categorias.items %}
+                                <option value="{{ key }}" {% if categoria_selecionada == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="tipo_refeicao" class="form-label">Tipo de Refeição</label>
+                        <select name="tipo_refeicao" id="tipo_refeicao" class="form-select">
+                            <option value="">Todos os tipos</option>
+                            {% for key, value in tipos_refeicao.items %}
+                                <option value="{{ key }}" {% if tipo_refeicao_selecionado == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if marmitas %}
+        {% for marmita in marmitas %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if marmita.imagem %}
+                <img src="{{ marmita.imagem.url }}" class="card-img-top" alt="{{ marmita.nome }}">
+                {% else %}
+                <div class="card-img-top bg-light text-center py-5">
+                    <i class="fas fa-utensils fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ marmita.nome }}</h5>
+                    <p class="card-text text-muted small mb-2">
+                        <span class="badge bg-primary">{{ marmita.get_categoria_display }}</span>
+                        <span class="badge bg-secondary">{{ marmita.get_tipo_refeicao_display }}</span>
+                    </p>
+                    <p class="card-text">{{ marmita.descricao|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0 text-primary">R$ {{ marmita.preco }}</span>
+                        <a href="{% url 'nutricao:marmita_detail' marmita.pk %}" class="btn btn-sm btn-outline-primary">Ver detalhes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i> Nenhuma marmita encontrada com os filtros selecionados.
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Planos Alimentares - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Planos Alimentares</h1>
+        <p class="lead">Gerencie seus planos alimentares personalizados para atingir seus objetivos de saúde.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-end">
+            <a href="{% url 'nutricao:plano_alimentar_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Plano Alimentar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Plano Alimentar Atual</h5>
+            </div>
+            <div class="card-body">
+                {% for plano in planos %}
+                    {% if plano.ativo %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>{{ plano.objetivo }}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="far fa-calendar-alt me-2"></i>Iniciado em {{ plano.data_inicio }}
+                                {% if plano.data_fim %}
+                                <span class="mx-2">•</span>
+                                <i class="far fa-calendar-check me-2"></i>Término em {{ plano.data_fim }}
+                                {% endif %}
+                            </p>
+                            {% if plano.restricoes %}
+                            <p><strong>Restrições:</strong> {{ plano.restricoes }}</p>
+                            {% endif %}
+                            {% if plano.observacoes %}
+                            <p><strong>Observações:</strong> {{ plano.observacoes }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center justify-content-end">
+                            <a href="{% url 'nutricao:plano_alimentar_detail' plano.pk %}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-eye me-1"></i> Detalhes
+                            </a>
+                            <a href="{% url 'nutricao:plano_alimentar_update' plano.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-edit me-1"></i> Editar
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Você não possui um plano alimentar ativo no momento.
+                    <a href="{% url 'nutricao:plano_alimentar_create' %}" class="alert-link">Crie um novo plano</a> para começar.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Histórico de Planos Alimentares</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Objetivo</th>
+                                <th>Data de Início</th>
+                                <th>Data de Término</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for plano in planos %}
+                                {% if not plano.ativo %}
+                                <tr>
+                                    <td>{{ plano.objetivo }}</td>
+                                    <td>{{ plano.data_inicio }}</td>
+                                    <td>{{ plano.data_fim|default:"Em andamento" }}</td>
+                                    <td>
+                                        {% if plano.ativo %}
+                                        <span class="badge bg-success">Ativo</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Inativo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'nutricao:plano_alimentar_detail' plano.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'nutricao:plano_alimentar_update' plano.pk %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Nenhum plano alimentar encontrado no histórico.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

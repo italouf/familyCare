@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Contatos Emergenciais - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Contatos Emergenciais</h1>
+        <p class="lead">Gerencie seus contatos para situações de emergência.</p>
+        <a href="{% url 'rede_apoio:contato_emergencial_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Adicionar Novo Contato
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Meus Contatos</h5>
+            </div>
+            <div class="card-body">
+                {% if contatos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Relação</th>
+                                <th>Telefone</th>
+                                <th>Prioridade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contato in contatos %}
+                            <tr>
+                                <td>{{ contato.nome }}</td>
+                                <td>{{ contato.get_tipo_display }}</td>
+                                <td>{{ contato.telefone }}</td>
+                                <td>
+                                    {% if contato.prioridade == 1 %}
+                                    <span class="badge bg-danger">Alta</span>
+                                    {% elif contato.prioridade == 2 %}
+                                    <span class="badge bg-warning">Média</span>
+                                    {% else %}
+                                    <span class="badge bg-info">Baixa</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'rede_apoio:contato_emergencial_detail' contato.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'rede_apoio:contato_emergencial_update' contato.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'rede_apoio:contato_emergencial_delete' contato.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Você ainda não cadastrou nenhum contato emergencial.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas de Segurança</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Mantenha seus contatos sempre atualizados.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Inclua pelo menos um contato de alta prioridade.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Informe seus contatos que eles estão na sua lista de emergência.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Acionamento Rápido</h5>
+            </div>
+            <div class="card-body">
+                <p>Em caso de emergência, você pode acionar rapidamente seus contatos prioritários.</p>
+                <a href="#" class="btn btn-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Acionar Contatos de Emergência
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

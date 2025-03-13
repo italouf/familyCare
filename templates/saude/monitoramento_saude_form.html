@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Monitoramento de Saúde - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">{% if monitoramento %}Editar{% else %}Registrar{% endif %} Monitoramento de Saúde</h1>
+        <p class="lead">Registre seus indicadores diários de saúde para um melhor acompanhamento.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Formulário de Monitoramento</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Passos -->
+                    <div class="mb-3">
+                        <label for="passos" class="form-label">Passos</label>
+                        <input type="number" class="form-control" id="passos" name="passos" min="0" value="{% if monitoramento %}{{ monitoramento.passos }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe o número de passos.
+                        </div>
+                    </div>
+                    
+                    <!-- Horas de Sono -->
+                    <div class="mb-3">
+                        <label for="horas_sono" class="form-label">Horas de Sono</label>
+                        <input type="number" class="form-control" id="horas_sono" name="horas_sono" min="0" max="24" step="0.5" value="{% if monitoramento %}{{ monitoramento.horas_sono }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe as horas de sono (entre 0 e 24).
+                        </div>
+                    </div>
+                    
+                    <!-- Calorias -->
+                    <div class="mb-3">
+                        <label for="calorias" class="form-label">Calorias Queimadas</label>
+                        <input type="number" class="form-control" id="calorias" name="calorias" min="0" value="{% if monitoramento %}{{ monitoramento.calorias }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe as calorias queimadas.
+                        </div>
+                    </div>
+                    
+                    <!-- Batimentos Cardíacos -->
+                    <div class="mb-3">
+                        <label for="batimentos" class="form-label">Batimentos Cardíacos (BPM)</label>
+                        <input type="number" class="form-control" id="batimentos" name="batimentos" min="30" max="220" value="{% if monitoramento %}{{ monitoramento.batimentos }}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe os batimentos cardíacos (entre 30 e 220).
+                        </div>
+                    </div>
+                    
+                    <!-- Data -->
+                    <div class="mb-3">
+                        <label for="data" class="form-label">Data</label>
+                        <input type="date" class="form-control" id="data" name="data" value="{% if monitoramento %}{{ monitoramento.data|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, selecione a data.
+                        </div>
+                    </div>
+                    
+                    <!-- Observações -->
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3">{% if monitoramento %}{{ monitoramento.observacoes }}{% endif %}</textarea>
+                    </div>
+                    
+                    <!-- Botões -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'saude:monitoramento_saude_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.getElementsByClassName('needs-validation');
+    Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

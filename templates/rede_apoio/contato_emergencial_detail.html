@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Contato - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'rede_apoio:contato_emergencial_list' %}">Contatos Emergenciais</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ contato.nome }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Informações do Contato</h5>
+                <div>
+                    <a href="{% url 'rede_apoio:contato_emergencial_update' contato.pk %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a href="{% url 'rede_apoio:contato_emergencial_delete' contato.pk %}" class="btn btn-sm btn-danger ms-2">
+                        <i class="fas fa-trash"></i> Excluir
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Nome:</strong> {{ contato.nome }}</p>
+                        <p><strong>Relação:</strong> {{ contato.get_tipo_display }}</p>
+                        <p><strong>Telefone:</strong> {{ contato.telefone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Prioridade:</strong> 
+                            {% if contato.prioridade <= 2 %}
+                            <span class="badge bg-danger">Alta</span>
+                            {% elif contato.prioridade <= 4 %}
+                            <span class="badge bg-warning">Média</span>
+                            {% else %}
+                            <span class="badge bg-info">Baixa</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Email:</strong> {{ contato.email|default:"Não informado" }}</p>
+                        <p><strong>Endereço:</strong> {{ contato.endereco|default:"Não informado" }}</p>
+                    </div>
+                </div>
+                
+                {% if contato.observacoes %}
+                <div class="mb-3">
+                    <h6>Observações</h6>
+                    <p>{{ contato.observacoes }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <a href="tel:{{ contato.telefone }}" class="btn btn-success">
+                        <i class="fas fa-phone-alt me-2"></i> Ligar para {{ contato.nome }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Histórico de Acionamentos</h5>
+            </div>
+            <div class="card-body">
+                {% if acionamentos %}
+                <div class="list-group">
+                    {% for acionamento in acionamentos %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">{{ acionamento.data|date:"d/m/Y" }}</h6>
+                            <small class="text-muted">{{ acionamento.hora|time:"H:i" }}</small>
+                        </div>
+                        <p class="mb-1">{{ acionamento.motivo }}</p>
+                        <small class="text-muted">
+                            {% if acionamento.atendido %}
+                            <i class="fas fa-check-circle text-success me-1"></i> Atendido
+                            {% else %}
+                            <i class="fas fa-times-circle text-danger me-1"></i> Não atendido
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Nenhum acionamento registrado para este contato.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

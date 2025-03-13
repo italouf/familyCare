@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Lembretes - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Meus Lembretes</h1>
+        <p class="lead">Gerencie seus lembretes prioritários e notificações importantes.</p>
+    </div>
+</div>
+
+<!-- Botão para adicionar novo lembrete -->
+<div class="row mb-4">
+    <div class="col-12 text-end">
+        <a href="{% url 'tarefas:lembrete_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Novo Lembrete
+        </a>
+    </div>
+</div>
+
+<!-- Lista de Lembretes -->
+<div class="row">
+    {% if lembretes %}
+        {% for lembrete in lembretes %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm {% if not lembrete.lido %}border-warning{% endif %}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="badge {% if lembrete.tipo == 'urgente' %}bg-danger{% elif lembrete.tipo == 'importante' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                            {{ lembrete.get_tipo_display }}
+                        </span>
+                        <span class="badge {% if lembrete.lido %}bg-secondary{% else %}bg-success{% endif %}">
+                            {% if lembrete.lido %}Lido{% else %}Não lido{% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ lembrete.titulo }}</h5>
+                        <p class="card-text">{{ lembrete.descricao|truncatechars:100 }}</p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="far fa-clock"></i> {{ lembrete.data_notificacao|date:"d/m/Y H:i" }}
+                            </small>
+                        </p>
+                        {% if lembrete.tarefa %}
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-tasks"></i> Tarefa: {{ lembrete.tarefa.descricao|truncatechars:30 }}
+                                </small>
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            {% if not lembrete.lido %}
+                                <a href="{% url 'tarefas:lembrete_marcar_lido' lembrete.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-check"></i> Marcar como lido
+                                </a>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDetalhesLembrete{{ lembrete.id }}">
+                                <i class="fas fa-eye"></i> Detalhes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal para detalhes do lembrete -->
+                <div class="modal fade" id="modalDetalhesLembrete{{ lembrete.id }}" tabindex="-1" aria-labelledby="modalDetalhesLembreteLabel{{ lembrete.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalDetalhesLembreteLabel{{ lembrete.id }}">{{ lembrete.titulo }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Tipo:</strong> {{ lembrete.get_tipo_display }}</p>
+                                <p><strong>Data de Notificação:</strong> {{ lembrete.data_notificacao|date:"d/m/Y H:i" }}</p>
+                                <p><strong>Status:</strong> {% if lembrete.lido %}Lido{% else %}Não lido{% endif %}</p>
+                                {% if lembrete.tarefa %}
+                                    <p><strong>Tarefa Relacionada:</strong> {{ lembrete.tarefa.descricao }}</p>
+                                {% endif %}
+                                <hr>
+                                <h6>Descrição:</h6>
+                                <p>{{ lembrete.descricao }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                {% if not lembrete.lido %}
+                                    <a href="{% url 'tarefas:lembrete_marcar_lido' lembrete.id %}" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Marcar como lido
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Você não possui lembretes cadastrados.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

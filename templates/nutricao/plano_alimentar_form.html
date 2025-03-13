@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Plano Alimentar - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">{% if plano %}Editar{% else %}Novo{% endif %} Plano Alimentar</h1>
+        <p class="lead">Crie um plano alimentar personalizado para atingir seus objetivos de saúde.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Formulário de Plano Alimentar</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Objetivo do Plano -->
+                    <div class="mb-3">
+                        <label for="objetivo" class="form-label">Objetivo do Plano</label>
+                        <input type="text" class="form-control" id="objetivo" name="objetivo" value="{% if plano %}{{ plano.objetivo }}{% endif %}" placeholder="Ex: Perda de peso, Ganho de massa muscular" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe o objetivo do plano alimentar.
+                        </div>
+                    </div>
+                    
+                    <!-- Data de Início -->
+                    <div class="mb-3">
+                        <label for="data_inicio" class="form-label">Data de Início</label>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{% if plano %}{{ plano.data_inicio|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}" required>
+                        <div class="invalid-feedback">
+                            Por favor, informe a data de início do plano.
+                        </div>
+                    </div>
+                    
+                    <!-- Data de Término (opcional) -->
+                    <div class="mb-3">
+                        <label for="data_fim" class="form-label">Data de Término (opcional)</label>
+                        <input type="date" class="form-control" id="data_fim" name="data_fim" value="{% if plano and plano.data_fim %}{{ plano.data_fim|date:'Y-m-d' }}{% endif %}">
+                        <small class="text-muted">Deixe em branco se o plano não tiver data de término definida.</small>
+                    </div>
+                    
+                    <!-- Restrições Alimentares -->
+                    <div class="mb-3">
+                        <label for="restricoes" class="form-label">Restrições Alimentares (opcional)</label>
+                        <textarea class="form-control" id="restricoes" name="restricoes" rows="3" placeholder="Ex: Intolerância à lactose, alergia a amendoim">{% if plano %}{{ plano.restricoes }}{% endif %}</textarea>
+                    </div>
+                    
+                    <!-- Observações -->
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações Adicionais (opcional)</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3" placeholder="Informações adicionais sobre seu plano alimentar">{% if plano %}{{ plano.observacoes }}{% endif %}</textarea>
+                    </div>
+                    
+                    <!-- Plano Ativo -->
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="ativo" name="ativo" {% if not plano or plano.ativo %}checked{% endif %}>
+                        <label class="form-check-label" for="ativo">Definir como plano ativo</label>
+                        <small class="d-block text-muted">Se marcado, este se tornará seu plano alimentar atual.</small>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'nutricao:plano_alimentar_list' %}" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-info-circle text-primary me-2"></i> Defina objetivos claros e realistas para seu plano alimentar.</li>
+                    <li><i class="fas fa-info-circle text-primary me-2"></i> Informe todas as restrições alimentares para um plano mais adequado.</li>
+                    <li><i class="fas fa-info-circle text-primary me-2"></i> Após criar o plano, você poderá adicionar refeições específicas para cada dia da semana.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validação do formulário
+(function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}

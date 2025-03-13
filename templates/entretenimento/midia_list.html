@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Entretenimento - Mídias{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Entretenimento</h1>
+    
+    <!-- Barra de pesquisa -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get" class="d-flex">
+                <input type="text" name="q" class="form-control me-2" placeholder="Buscar mídias..." value="{{ request.GET.q }}">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Navegação por tipos -->
+    <div class="mb-4">
+        <h5>Filtrar por tipo:</h5>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'entretenimento:midia_list' %}" class="btn {% if not tipo_atual %}btn-primary{% else %}btn-outline-primary{% endif %}">Todos</a>
+            {% for tipo_code, tipo_name in tipos %}
+                <a href="{% url 'entretenimento:midia_tipo' tipo=tipo_code %}" 
+                   class="btn {% if tipo_atual == tipo_code %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ tipo_name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Navegação por categorias -->
+    <div class="mb-4">
+        <h5>Filtrar por categoria:</h5>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'entretenimento:midia_list' %}" class="btn {% if not categoria_atual %}btn-secondary{% else %}btn-outline-secondary{% endif %}">Todas</a>
+            {% for cat_code, cat_name in categorias %}
+                <a href="{% url 'entretenimento:midia_categoria' categoria=cat_code %}" 
+                   class="btn {% if categoria_atual == cat_code %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+                    {{ cat_name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Título da página com filtros aplicados -->
+    {% if tipo_atual %}
+        <h2 class="mb-4">{{ tipo_display }}</h2>
+    {% elif categoria_atual %}
+        <h2 class="mb-4">Categoria: {{ categoria_display }}</h2>
+    {% endif %}
+    
+    <!-- Lista de mídias -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        {% for midia in midias %}
+            <div class="col">
+                <div class="card h-100">
+                    {% if midia.imagem %}
+                        <img src="{{ midia.imagem.url }}" class="card-img-top" alt="{{ midia.titulo }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light text-center py-5" style="height: 200px;">
+                            <i class="bi bi-film fs-1"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ midia.titulo }}</h5>
+                        <p class="card-text text-muted">
+                            <span class="badge bg-primary">{{ midia.get_tipo_display }}</span>
+                            <span class="badge bg-secondary">{{ midia.get_categoria_display }}</span>
+                        </p>
+                        <p class="card-text">{{ midia.descricao|truncatechars:100 }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'entretenimento:midia_detail' pk=midia.pk %}" class="btn btn-sm btn-primary">Ver detalhes</a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'entretenimento:reproduzir_midia' midia_id=midia.pk %}" class="btn btn-sm btn-success">
+                                <i class="bi bi-play-fill"></i> Reproduzir
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Nenhuma mídia encontrada.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Paginação -->
+    {% if is_paginated %}
+    <nav aria-label="Paginação" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo; Primeira</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo; Primeira</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Próxima</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Última &raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Próxima</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Última &raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

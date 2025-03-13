@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}E-books Educacionais - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">E-books Educacionais</h1>
+        <p class="lead">Acesse nossa biblioteca de e-books sobre saúde, nutrição e cuidados familiares.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-10">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select name="categoria" id="categoria" class="form-select">
+                            <option value="">Todas as categorias</option>
+                            {% for key, value in categorias.items %}
+                                <option value="{{ key }}" {% if categoria_selecionada == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% if ebooks %}
+        {% for ebook in ebooks %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if ebook.capa %}
+                <img src="{{ ebook.capa.url }}" class="card-img-top" alt="{{ ebook.titulo }}">
+                {% else %}
+                <div class="card-img-top bg-light text-center py-5">
+                    <i class="fas fa-book fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ ebook.titulo }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ ebook.autor }}</h6>
+                    <p class="card-text text-muted small mb-2">
+                        <span class="badge bg-primary">{{ ebook.categoria }}</span>
+                        <span class="badge bg-secondary">{{ ebook.paginas }} páginas</span>
+                    </p>
+                    <p class="card-text">{{ ebook.descricao|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if ebook.gratuito %}
+                            <span class="badge bg-success">Gratuito</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">R$ {{ ebook.preco }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'educacional:ebook_detail' ebook.pk %}" class="btn btn-sm btn-outline-primary">Ver detalhes</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i> Nenhum e-book encontrado com os filtros selecionados.
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

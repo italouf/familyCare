@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Promoções - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Promoções Ativas</h1>
+        <p class="lead">Confira as melhores ofertas disponíveis para sua família.</p>
+    </div>
+</div>
+
+<div class="row">
+    {% if promocoes %}
+        {% for promocao in promocoes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if promocao.imagem %}
+                <img src="{{ promocao.imagem.url }}" class="card-img-top" alt="{{ promocao.titulo }}">
+                {% elif promocao.produto.imagem %}
+                <img src="{{ promocao.produto.imagem.url }}" class="card-img-top" alt="{{ promocao.produto.nome }}">
+                {% else %}
+                <div class="card-img-top bg-light text-center py-5">
+                    <i class="fas fa-tag fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ promocao.titulo }}</h5>
+                        <span class="badge bg-danger">{{ promocao.desconto }}% OFF</span>
+                    </div>
+                    <h6 class="text-muted">{{ promocao.produto.nome }}</h6>
+                    <p class="card-text">{{ promocao.descricao|default:promocao.produto.descricao|truncatewords:20 }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="h5 text-muted mb-0 text-decoration-line-through me-2">R$ {{ promocao.produto.preco }}</span>
+                        <span class="h4 text-danger mb-0">R$ {{ promocao.preco_promocional|floatformat:2 }}</span>
+                    </div>
+                    <p class="card-text text-muted small">
+                        <i class="fas fa-calendar-alt me-2"></i>Válido até {{ promocao.data_fim|date:"d/m/Y" }}
+                    </p>
+                    {% if promocao.codigo_cupom %}
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-ticket-alt me-2"></i>Use o cupom: <strong>{{ promocao.codigo_cupom }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'mercado:produto_detail' promocao.produto.id %}" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>Comprar Agora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Não há promoções ativas no momento.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

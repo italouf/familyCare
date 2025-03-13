@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Meta de Consumo de Água - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Meta de Consumo de Água</h1>
+        <p class="lead">Acompanhe e gerencie sua meta diária de consumo de água.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Sua Meta Atual</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Meta Diária</h6>
+                        <p class="mb-0">{{ meta_agua.quantidade_diaria_ml }}ml</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Data de Início</h6>
+                        <p class="mb-0">{{ meta_agua.data|date:"d/m/Y" }}</p>
+                    </div>
+                    {% if meta_agua.observacoes %}
+                    <div class="col-12">
+                        <h6 class="text-muted">Observações</h6>
+                        <p class="mb-0">{{ meta_agua.observacoes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4">
+                    <h6 class="text-muted mb-2">Progresso Hoje</h6>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width: {{ percentual_consumido }}%" 
+                             aria-valuenow="{{ percentual_consumido }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ percentual_consumido }}%
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ consumido_hoje }}ml de {{ meta_agua.quantidade_diaria }}ml</small>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'saude:saude_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                    <div>
+                        <a href="{% url 'saude:meta_agua_update' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-edit me-2"></i>Editar Meta
+                        </a>
+                        <a href="{% url 'saude:consumo_agua_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus-circle me-2"></i>Registrar Consumo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas de Hidratação</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Beba água regularmente ao longo do dia.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Aumente o consumo durante exercícios físicos.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Mantenha uma garrafa de água sempre por perto.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Observe a cor da urina como indicador de hidratação.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Histórico Recente</h5>
+            </div>
+            <div class="card-body">
+                {% if consumos_recentes %}
+                <ul class="list-unstyled">
+                    {% for consumo in consumos_recentes %}
+                    <li class="mb-2">
+                        <i class="fas fa-tint text-info me-2"></i>
+                        {{ consumo.quantidade_ml }}ml
+                        <small class="text-muted">- {{ consumo.data|date:"d/m/Y" }} {{ consumo.horario|time:"H:i" }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0">Nenhum registro de consumo recente.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Configurações do Modo Noturno - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Configurações do Modo Noturno</h1>
+        <p class="lead">Personalize o modo noturno para melhorar seu descanso e bem-estar.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Suas Configurações</h5>
+                <div>
+                    <a href="{% url 'modo_noturno:configuracao_update' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i> Editar Configurações
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Status:</strong> 
+                            {% if config.ativo %}
+                            <span class="badge bg-success">Ativado</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Desativado</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Horário de início:</strong> {{ config.horario_inicio|time:"H:i" }}</p>
+                        <p><strong>Horário de término:</strong> {{ config.horario_fim|time:"H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>
+                            <strong>Ativação automática:</strong> 
+                            {% if config.ativacao_automatica %}
+                            <span class="badge bg-success">Sim</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Não</span>
+                            {% endif %}
+                        </p>
+                        <p>
+                            <strong>Notificações:</strong> 
+                            {% if config.notificacoes %}
+                            <span class="badge bg-success">Ativadas</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Desativadas</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Intensidade da redução de luz azul:</strong> {{ config.intensidade_reducao_luz }}%</p>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn {% if config.ativo %}btn-danger{% else %}btn-success{% endif %}" id="toggleModoNoturno">
+                        {% if config.ativo %}
+                        <i class="fas fa-sun me-2"></i> Desativar Modo Noturno
+                        {% else %}
+                        <i class="fas fa-moon me-2"></i> Ativar Modo Noturno
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Benefícios do Modo Noturno</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Reduz a exposição à luz azul antes de dormir</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Ajuda a regular o ciclo circadiano</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Melhora a qualidade do sono</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Diminui a fadiga ocular</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Histórico de Uso</h5>
+            </div>
+            <div class="card-body">
+                <p>Visualize seu histórico de uso do modo noturno e analise seus padrões de sono.</p>
+                <a href="#" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line me-2"></i> Ver Histórico
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('toggleModoNoturno');
+        
+        if (toggleButton) {
+            toggleButton.addEventListener('click', function() {
+                // Aqui seria implementada a chamada AJAX para ativar/desativar o modo noturno
+                // Por enquanto, apenas recarregamos a página
+                window.location.href = "{% url 'modo_noturno:toggle' %}";
+            });
+        }
+    });
+</script>
+{% endblock %}

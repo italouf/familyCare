@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FamilyCare - Cuidado Familiar{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">FamilyCare</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}"><i class="fas fa-home"></i> Início</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-heartbeat"></i> Saúde
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'saude:atividade_fisica_list' %}">Atividades Físicas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'saude:consumo_agua_list' %}">Consumo de Água</a></li>
+                            <li><a class="dropdown-item" href="{% url 'saude:monitoramento_saude_list' %}">Monitoramento de Saúde</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-utensils"></i> Nutrição
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'nutricao:marmita_list' %}">Catálogo de Marmitas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'nutricao:plano_alimentar_list' %}">Planos Alimentares</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-users"></i> Rede de Apoio
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'rede_apoio:contato_emergencial_list' %}">Contatos Emergenciais</a></li>
+                            <li><a class="dropdown-item" href="{% url 'rede_apoio:grupo_apoio_list' %}">Grupos de Apoio</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tarefas:servico_baba_list' %}"><i class="fas fa-baby"></i> Serviço de Babás</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-book"></i> Educacional
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'educacional:curso_list' %}">Cursos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'educacional:ebook_list' %}">E-books</a></li>
+                            <li><a class="dropdown-item" href="{% url 'educacional:videoaula_list' %}">Videoaulas</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-tasks"></i> Tarefas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'tarefas:tarefa_list' %}"><i class="fas fa-clipboard-list"></i> Tarefas Diárias</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tarefas:calendario' %}"><i class="fas fa-calendar-alt"></i> Calendário</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tarefas:lembrete_list' %}"><i class="fas fa-bell"></i> Lembretes</a></li>
+                            <li><a class="dropdown-item" href="{% url 'educacional:evento_list' %}"><i class="fas fa-calendar-check"></i> Agenda de Eventos</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-shopping-cart"></i> Mercado
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'mercado:produto_list' %}"><i class="fas fa-store"></i> Produtos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'mercado:promocao_list' %}"><i class="fas fa-tags"></i> Promoções</a></li>
+                            <li><a class="dropdown-item" href="{% url 'educacional:lista_compras_list' %}"><i class="fas fa-shopping-basket"></i> Lista de Compras</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-film"></i> Entretenimento
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'entretenimento:midia_list' %}"><i class="fas fa-photo-video"></i> Catálogo</a></li>
+                            <li><a class="dropdown-item" href="{% url 'entretenimento:playlist_list' %}"><i class="fas fa-list"></i> Playlists</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'modo_noturno:configuracao' %}">
+                            <i class="fas fa-moon"></i> Modo Noturno
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'perfil' %}">Meu Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Sair</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Entrar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Cadastrar</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container py-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>FamilyCare</h5>
+                    <p>Cuidando da sua família com carinho e tecnologia.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Links Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-white">Início</a></li>
+                        <li><a href="{% url 'sobre' %}" class="text-white">Sobre Nós</a></li>
+                        <li><a href="{% url 'contato' %}" class="text-white">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contato</h5>
+                    <address>
+                        <p><i class="fas fa-envelope me-2"></i> contato@familycare.com.br</p>
+                        <p><i class="fas fa-phone me-2"></i> (71) 99999-9999</p>
+                    </address>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; {% now "Y" %} FamilyCare. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

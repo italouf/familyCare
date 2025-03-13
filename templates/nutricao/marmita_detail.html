@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ marmita.nome }} - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'nutricao:marmita_list' %}">Catálogo de Marmitas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ marmita.nome }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mb-4">
+        {% if marmita.imagem %}
+        <img src="{{ marmita.imagem.url }}" class="img-fluid rounded shadow" alt="{{ marmita.nome }}">
+        {% else %}
+        <div class="bg-light text-center py-5 rounded shadow">
+            <i class="fas fa-utensils fa-5x text-muted"></i>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-7 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h2 mb-3">{{ marmita.nome }}</h1>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ marmita.get_categoria_display }}</span>
+                    <span class="badge bg-secondary">{{ marmita.get_tipo_refeicao_display }}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <h5>Descrição</h5>
+                    <p>{{ marmita.descricao }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h5>Informações Nutricionais</h5>
+                    <div class="row">
+                        <div class="col-6 col-md-3 mb-2">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted">Calorias</small>
+                                <h5 class="mb-0">{{ marmita.calorias }} kcal</h5>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted">Proteínas</small>
+                                <h5 class="mb-0">{{ marmita.proteinas }}g</h5>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted">Carboidratos</small>
+                                <h5 class="mb-0">{{ marmita.carboidratos }}g</h5>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-2">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted">Gorduras</small>
+                                <h5 class="mb-0">{{ marmita.gorduras }}g</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="text-primary mb-0">R$ {{ marmita.preco }}</h3>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-shopping-cart me-2"></i> Adicionar ao Carrinho
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Avaliações</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <h2 class="mb-0">{{ media_avaliacoes|floatformat:1 }}</h2>
+                            <div>
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= media_avaliacoes|floatformat:0 %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">{{ avaliacoes|length }} avaliações</small>
+                        </div>
+                        
+                        {% if not avaliacao_usuario %}
+                        <div class="ms-auto">
+                            <a href="{% url 'nutricao:avaliacao_marmita_create' marmita.pk %}" class="btn btn-outline-primary">
+                                <i class="fas fa-star me-2"></i> Avaliar esta marmita
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if avaliacoes %}
+                    <div class="list-group">
+                        {% for avaliacao in avaliacoes %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ avaliacao.usuario.get_full_name|default:avaliacao.usuario.username }}</h6>
+                                <small class="text-muted">{{ avaliacao.data_criacao|date:"d/m/Y" }}</small>
+                            </div>
+                            <div class="mb-2">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= avaliacao.nota %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="mb-1">{{ avaliacao.comentario }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Esta marmita ainda não possui avaliações.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

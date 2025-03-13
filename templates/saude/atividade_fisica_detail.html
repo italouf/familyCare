@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes da Atividade Física - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Detalhes da Atividade Física</h1>
+        <p class="lead">Informações detalhadas sobre sua atividade física.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">{{ atividade.get_tipo_display }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Data</h6>
+                        <p class="mb-0">{{ atividade.data }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Duração</h6>
+                        <p class="mb-0">{{ atividade.duracao }} minutos</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Calorias Gastas</h6>
+                        <p class="mb-0">{% if atividade.calorias_gastas %}{{ atividade.calorias_gastas }} kcal{% else %}-{% endif %}</p>
+                    </div>
+                    {% if atividade.descricao %}
+                    <div class="col-12">
+                        <h6 class="text-muted">Descrição</h6>
+                        <p class="mb-0">{{ atividade.descricao }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'saude:atividade_fisica_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                    <div>
+                        <a href="{% url 'saude:atividade_fisica_update' atividade.pk %}" class="btn btn-primary me-2">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                        <a href="{% url 'saude:atividade_fisica_delete' atividade.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Excluir
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Mantenha um registro regular de suas atividades.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Compare seu progresso ao longo do tempo.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Varie seus tipos de exercícios para melhores resultados.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Atividades Físicas - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Atividades Físicas</h1>
+        <p class="lead">Acompanhe suas atividades físicas e mantenha-se saudável.</p>
+        <a href="{% url 'saude:atividade_fisica_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Registrar Nova Atividade
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Suas Atividades</h5>
+            </div>
+            <div class="card-body">
+                {% if atividades %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Data</th>
+                                <th>Duração</th>
+                                <th>Calorias</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for atividade in atividades %}
+                            <tr>
+                                <td>{{ atividade.get_tipo_display }}</td>
+                                <td>{{ atividade.data }}</td>
+                                <td>{{ atividade.duracao }} minutos</td>
+                                <td>{% if atividade.calorias_gastas %}{{ atividade.calorias_gastas }} kcal{% else %}-{% endif %}</td>
+                                <td>
+                                    <a href="{% url 'saude:atividade_fisica_detail' atividade.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'saude:atividade_fisica_update' atividade.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'saude:atividade_fisica_delete' atividade.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Você ainda não registrou nenhuma atividade física.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Estatísticas</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Total de atividades:</strong> {{ atividades|length }}</p>
+                <p><strong>Última atividade:</strong> {% if atividades %}{{ atividades.0.get_tipo_display }} ({{ atividades.0.data }}){% else %}Nenhuma{% endif %}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Pratique pelo menos 150 minutos de atividade física por semana.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Combine exercícios aeróbicos e de força para melhores resultados.</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Não se esqueça de se hidratar adequadamente durante os exercícios.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

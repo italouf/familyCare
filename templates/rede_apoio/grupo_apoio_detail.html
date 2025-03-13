@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ grupo.nome }} - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'rede_apoio:grupo_apoio_list' %}">Grupos de Apoio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ grupo.nome }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Detalhes do Grupo</h5>
+                    {% if participacao %}
+                    <a href="{% url 'rede_apoio:grupo_apoio_participar' grupo.pk %}" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt me-2"></i> Sair do Grupo
+                    </a>
+                    {% else %}
+                    <a href="{% url 'rede_apoio:grupo_apoio_participar' grupo.pk %}" class="btn btn-success">
+                        <i class="fas fa-sign-in-alt me-2"></i> Participar do Grupo
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <h2 class="h3 mb-3">{{ grupo.nome }}</h2>
+                <div class="mb-4">
+                    <span class="badge bg-primary">{{ grupo.tipo }}</span>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Descrição</h5>
+                        <p>{{ grupo.descricao }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Informações de Encontro</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Local:</strong> {{ grupo.local|default:"Não informado" }}</li>
+                            <li><strong>Horário:</strong> {{ grupo.horario|default:"Não informado" }}</li>
+                            <li><strong>Contato:</strong> {{ grupo.contato|default:"Não informado" }}</li>
+                            {% if grupo.website %}
+                            <li><strong>Website:</strong> <a href="{{ grupo.website }}" target="_blank">{{ grupo.website }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Participantes</h5>
+            </div>
+            <div class="card-body">
+                {% if participantes %}
+                <div class="row">
+                    {% for participante in participantes %}
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ participante.usuario.get_full_name|default:participante.usuario.username }}</h6>
+                                <small class="text-muted">Desde {{ participante.data_entrada|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Este grupo ainda não possui participantes.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Benefícios de Participar</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Compartilhamento de experiências</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Suporte emocional</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Acesso a recursos e informações</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i> Desenvolvimento de novas amizades</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Dicas para Participantes</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-info-circle text-info me-2"></i> Participe regularmente dos encontros</li>
+                    <li><i class="fas fa-info-circle text-info me-2"></i> Compartilhe suas experiências</li>
+                    <li><i class="fas fa-info-circle text-info me-2"></i> Respeite a privacidade dos outros participantes</li>
+                    <li><i class="fas fa-info-circle text-info me-2"></i> Mantenha contato com o grupo mesmo fora dos encontros</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

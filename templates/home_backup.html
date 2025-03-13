@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FamilyCare - Início{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 mb-4">Bem-vindo ao FamilyCare</h1>
+        <p class="lead">Seu assistente completo para cuidados familiares, saúde e bem-estar.</p>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<!-- Dashboard para usuários logados -->
+<div class="row">
+    <!-- Saúde & Bem-Estar Widget -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-heartbeat me-2"></i>Saúde & Bem-Estar
+            </div>
+            <div class="mb-3">
+                <h6>Consumo de Água Hoje</h6>
+                <div class="progress">
+                    <div class="progress-bar bg-info water-progress" role="progressbar" style="width: 0%" 
+                         aria-valuenow="{{ water_percentage|default:0 }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ water_percentage|default:0 }}%
+                    </div>
+                </div>
+                <small class="text-muted">{{ water_consumed|default:0 }}ml de {{ water_goal|default:2000 }}ml</small>
+            </div>
+            <div class="mb-3">
+                <h6>Última Atividade Física</h6>
+                {% if last_activity %}
+                <p>{{ last_activity.get_tipo_display }} - {{ last_activity.data }}<br>
+                   <small class="text-muted">{{ last_activity.duracao }} minutos</small>
+                </p>
+                {% else %}
+                <p class="text-muted">Nenhuma atividade registrada</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'saude:atividade_fisica_list' %}" class="btn btn-sm btn-outline-primary">Ver mais</a>
+        </div>
+    </div>
+    
+    <!-- Nutrição Widget -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-utensils me-2"></i>Nutrição
+            </div>
+            <div class="mb-3">
+                <h6>Plano Alimentar Atual</h6>
+                {% if current_plan %}
+                <p>{{ current_plan.objetivo }}<br>
+                   <small class="text-muted">Iniciado em {{ current_plan.data_inicio }}</small>
+                </p>
+                {% else %}
+                <p class="text-muted">Nenhum plano ativo</p>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <h6>Marmitas Recomendadas</h6>
+                <ul class="list-unstyled">
+                    {% for marmita in recommended_meals|slice:":2" %}
+                    <li>{{ marmita.nome }} - {{ marmita.get_categoria_display }}</li>
+                    {% empty %}
+                    <li class="text-muted">Nenhuma recomendação disponível</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <a href="{% url 'nutricao:marmita_list' %}" class="btn btn-sm btn-outline-primary">Ver catálogo</a>
+        </div>
+    </div>
+    
+    <!-- Rede de Apoio Widget -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-users me-2"></i>Rede de Apoio
+            </div>
+            <div class="mb-3">
+                <h6>Contatos de Emergência</h6>
+                {% for contato in emergency_contacts|slice:":2" %}
+                <div class="emergency-contact">
+                    <div class="emergency-contact-name">{{ contato.nome }}</div>
+                    <div>{{ contato.get_tipo_display }}</div>
+                    <button class="btn btn-sm btn-danger mt-1 emergency-dial" 
+                            data-phone="{{ contato.telefone }}" data-name="{{ contato.nome }}">
+                        <i class="fas fa-phone-alt"></i> Ligar
+                    </button>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nenhum contato cadastrado</p>
+                {% endfor %}
+            </div>
+            <a href="{% url 'rede_apoio:contato_emergencial_list' %}" class="btn btn-sm btn-outline-primary">Gerenciar contatos</a>
+        </div>
+    </div>
+    
+    <!-- Educacional Widget -->
+    <div class="col-md-6 col-lg-6 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-book me-2"></i>Conteúdo Educacional
+            </div>
+            <div class="mb-3">
+                <h6>Cursos Recomendados</h6>
+                <ul class="list-unstyled">
+                    {% for curso in recommended_courses|slice:":2" %}
+                    <li>{{ curso.titulo }} - {{ curso.get_categoria_display }}</li>
+                    {% empty %}
+                    <li class="text-muted">Nenhuma recomendação disponível</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <a href="{% url 'educacional:curso_list' %}" class="btn btn-sm btn-outline-primary">Ver cursos</a>
+        </div>
+    </div>
+    
+    <!-- Modo Noturno Widget -->
+    <div class="col-md-6 col-lg-6 mb-4">
+        <div class="dashboard-widget">
+            <div class="dashboard-widget-title">
+                <i class="fas fa-moon me-2"></i>Modo Noturno
+            </div>
+            <div class="mb-3">
+                <p>Configure o modo noturno para melhorar seu sono e reduzir a fadiga visual.</p>
+                <div class="form-check form-switch">
+                    <input class="form-check-input night-mode-toggle" type="checkbox" id="nightModeSwitch">
+                    <label class="form-check-label" for="nightModeSwitch">Ativar Modo Noturno</label>
+                </div>
+            </div>
+            <a href="{% url 'modo_noturno:configuracao' %}" class="btn btn-sm btn-outline-primary">Configurações avançadas</a>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Conteúdo para visitantes não logados -->
+<div class="row align-items-center">
+    <div class="col-lg-6 mb-4">
+        <h2>Cuide da sua família com tecnologia</h2>
+        <p class="lead">O FamilyCare é uma plataforma completa para gerenciar a saúde e o bem-estar de toda a família.</p>
+        <ul class="list-unstyled">
+            <li><i class="fas fa-check-circle text-success me-2"></i> Monitoramento de saúde</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Planos alimentares personalizados</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Rede de contatos emergenciais</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Conteúdo educacional</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Modo noturno para melhor descanso</li>
+        </ul>
+        <div class="mt-4">
+            <a href="{% url 'register' %}" class="btn btn-primary me-2">Cadastre-se Grátis</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary">Entrar</a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <img src="{% static 'img/family-care.png' %}" alt="FamilyCare" class="img-fluid rounded shadow">
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h3 class="text-center mb-4">Nossos Módulos</h3>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-heartbeat fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Saúde & Bem-Estar</h5>
+                <p class="card-text">Monitore atividades físicas, consumo de água e indicadores de saúde.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Nutrição</h5>
+                <p class="card-text">Planos alimentares personalizados e catálogo de marmitas saudáveis.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Rede de Apoio</h5>
+                <p class="card-text">Gerencie contatos emergenciais e acesse grupos de apoio.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Educacional</h5>
+                <p class="card-text">Acesse cursos, e-books e videoaulas sobre saúde e bem-estar.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

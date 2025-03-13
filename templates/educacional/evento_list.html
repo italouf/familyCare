@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Eventos - FamilyCare{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-3">Eventos Disponíveis</h1>
+        <p class="lead">Confira os eventos disponíveis e participe dos que mais interessam a você.</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for evento in eventos %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ evento.titulo }}</h5>
+                <p class="card-text text-muted">
+                    <i class="fas fa-calendar-alt me-2"></i>{{ evento.data_inicio|date:"d/m/Y H:i" }}
+                    {% if evento.data_fim %}
+                    - {{ evento.data_fim|date:"d/m/Y H:i" }}
+                    {% endif %}
+                </p>
+                {% if evento.local %}
+                <p class="card-text">
+                    <i class="fas fa-map-marker-alt me-2"></i>{{ evento.local }}
+                </p>
+                {% endif %}
+                <p class="card-text">{{ evento.descricao|truncatewords:30 }}</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'educacional:evento_detail' evento.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-info-circle me-2"></i>Detalhes
+                    </a>
+                    {% if not evento in eventos_participando %}
+                    <a href="{% url 'educacional:evento_participar' evento.id %}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus me-2"></i>Participar
+                    </a>
+                    {% else %}
+                    <button class="btn btn-success" disabled>
+                        <i class="fas fa-check me-2"></i>Participando
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>Não há eventos disponíveis no momento.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
